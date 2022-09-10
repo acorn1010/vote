@@ -15,4 +15,13 @@ function defineNextConfig(config) {
 export default defineNextConfig({
   reactStrictMode: true,
   swcMinify: true,
+
+  images: {
+    // Allow SVG support. See: contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+
+    // Allow images from the following external domains.
+    domains: ['tailwindui.com', 'images.unsplash.com'],
+  }
 });
