@@ -5,7 +5,4 @@ module.exports = {
     extend: {},
   },
   plugins: [],
-  safelist: process.env.NODE_ENV === 'development' ? [{
-    pattern: /.*/,
-  }] : [],
 };
