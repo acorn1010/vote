@@ -2,6 +2,8 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import { signIn, useSession } from 'next-auth/react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NavTitle } from './NavTitle';
@@ -16,6 +18,7 @@ export function Navbar() {
               <MobileMenuButton open={open} />
               <NavTitle />
               <NavSearch />
+              <NavLogInSection />
             </div>
           </div>
 
@@ -108,6 +111,101 @@ function NavSearch() {
             type="search"
           />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function NavLogInSection() {
+  const session = useSession();
+
+  return (
+    <div className="flex-shrink-0">
+      {session.status === 'authenticated' ? <NavAvatar /> : <NavLogInButton />}
+    </div>
+  );
+}
+
+function NavLogInButton() {
+  return (
+    <div className="flex-shrink-0">
+      <button
+        className="relative inline-flex items-center rounded-md border border-transparent bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+        type="button"
+        onClick={async () => {
+          const result = await signIn('discord');
+          console.log('auth result', result);
+        }}
+      >
+        Log In
+      </button>
+    </div>
+  );
+}
+
+function NavAvatar() {
+  const session = useSession();
+  const imageSrc =
+    session.data?.user?.image ??
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
+  const name = session.data?.user?.name ?? 'Unknown';
+  return (
+    <div className="relative ml-3">
+      <div>
+        <button
+          type="button"
+          className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+          id="user-menu-button"
+          aria-expanded="false"
+          aria-haspopup="true"
+        >
+          <span className="sr-only">Open user menu</span>
+          <Image
+            className="h-8 w-8 rounded-full"
+            width={64}
+            height={64}
+            src={imageSrc}
+            alt={`${name}'s avatar`}
+          />
+        </button>
+      </div>
+
+      <div
+        className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        role="menu"
+        aria-orientation="vertical"
+        aria-labelledby="user-menu-button"
+        tabIndex={-1}
+      >
+        <a
+          href="#"
+          className="block px-4 py-2 text-sm text-gray-700"
+          role="menuitem"
+          tabIndex={-1}
+          id="user-menu-item-0"
+        >
+          Your Profile
+        </a>
+
+        <a
+          href="#"
+          className="block px-4 py-2 text-sm text-gray-700"
+          role="menuitem"
+          tabIndex={-1}
+          id="user-menu-item-1"
+        >
+          Settings
+        </a>
+
+        <a
+          href="#"
+          className="block px-4 py-2 text-sm text-gray-700"
+          role="menuitem"
+          tabIndex={-1}
+          id="user-menu-item-2"
+        >
+          Sign out
+        </a>
       </div>
     </div>
   );
