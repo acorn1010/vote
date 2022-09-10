@@ -48,18 +48,19 @@ model Session {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  name          String?
-  email         String?       @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  createdAt     DateTime      @default(now())
-  comments      Comment[]
-  commentVotes  CommentVote[]
-  posts         Post[]
-  postVotes     PostVote[]
+  id              String        @id @default(cuid())
+  name            String?
+  email           String?       @unique
+  emailVerified   DateTime?
+  image           String?
+  accounts        Account[]
+  sessions        Session[]
+  createdAt       DateTime      @default(now())
+  comments        Comment[]
+  commentVotes    CommentVote[]
+  posts           Post[]
+  postVotes       PostVote[]
+  moderatorTopics TopicToUser[]
 }
 
 model VerificationToken {
@@ -67,7 +68,25 @@ model VerificationToken {
   token      String   @unique
   expires    DateTime
 
-  @@unique([identifier, token])
+  @@id([identifier, token])
+}
+
+model TopicToUser {
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId String
+  userId  String
+  // TODO(acorn1010): Add permissions. By default, they have all permissions.
+
+  @@id([topicId, userId])
+}
+
+// A topic, such as "acorn1010" or "foony". A "topic" has multiple "posts" in it.
+model Topic {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  moderators TopicToUser[]
 }
 
 enum PostType {
@@ -116,7 +135,7 @@ model CommentVote {
   commentId String
   userId    String
 
-  @@unique([commentId, userId])
+  @@id([commentId, userId])
 }
 
 model PostVote {
@@ -126,5 +145,5 @@ model PostVote {
   postId String
   userId String
 
-  @@unique([postId, userId])
+  @@id([postId, userId])
 }
