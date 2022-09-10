@@ -1,4 +1,5 @@
 {
+  "ignorePatterns": ["prettier.config.js"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json"

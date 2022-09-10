@@ -1,8 +1,6 @@
-import {useRouter} from 'next/router';
+import { useRouter } from 'next/router';
 
 export default function Topic() {
-  const {query} = useRouter();
-  return (
-      <p>Topic: {query.topicId}</p>
-  );
+  const { query } = useRouter();
+  return <p>Topic: {query.topicId}</p>;
 }

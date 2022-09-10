@@ -1,4 +1,4 @@
-import { env } from "./src/env/server.mjs";
+import { env } from './src/env/server.mjs';
 
 /**
  * Don't be scared of the generics here.
@@ -23,5 +23,5 @@ export default defineNextConfig({
 
     // Allow images from the following external domains.
     domains: ['tailwindui.com', 'images.unsplash.com'],
-  }
+  },
 });
