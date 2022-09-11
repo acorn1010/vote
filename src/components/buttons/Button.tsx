@@ -11,8 +11,8 @@ export function Button(props: PropsWithChildren<ButtonProps>) {
   return (
     <button
       className={clsx(
-        'relative m-2 rounded-md border border-transparent bg-primary-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-slate-800',
-        fullWidth && 'w-[calc(100%-theme(space.4))]',
+        'relative rounded-md border border-transparent bg-primary-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-slate-800',
+        fullWidth && 'w-full',
         className
       )}
       type="button"
