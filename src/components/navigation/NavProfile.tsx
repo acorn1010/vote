@@ -39,9 +39,9 @@ export function NavProfile() {
             {({ active }) => (
               <a
                 href="#"
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: '/' })}
                 className={clsx(
-                  active ? 'bg-neutral-100' : '',
+                  active ? 'bg-neutral-200' : '',
                   'block px-4 py-2 text-sm text-neutral-700'
                 )}
               >
