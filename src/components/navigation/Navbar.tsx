@@ -3,9 +3,9 @@ import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { signIn, useSession } from 'next-auth/react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { Button } from '../buttons/Button';
 import { NavProfile } from './NavProfile';
 import { NavTitle } from './NavTitle';
 
@@ -130,16 +130,14 @@ function NavLogInSection() {
 function NavLogInButton() {
   return (
     <div className="flex-shrink-0">
-      <button
-        className="relative inline-flex items-center rounded-md border border-transparent bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-        type="button"
+      <Button
         onClick={async () => {
           const result = await signIn('discord');
           console.log('auth result', result);
         }}
       >
         Log In
-      </button>
+      </Button>
     </div>
   );
 }
