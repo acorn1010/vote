@@ -11,7 +11,7 @@ import { NavTitle } from './NavTitle';
 
 export function Navbar() {
   return (
-    <Disclosure as="nav" className="bg-slate-800">
+    <Disclosure as="nav" className="bg-neutral-800">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -36,7 +36,7 @@ function MobileMenuButton(props: { open?: boolean }) {
   return (
     <div className="flex-0 inset-y-0 left-0 flex items-center">
       {/* Mobile menu button */}
-      <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-slate-400 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+      <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-neutral-400 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
         <span className="sr-only">Open main menu</span>
         {open ? (
           <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
@@ -78,8 +78,8 @@ function NavItem(props: NavItemProps) {
         as="a"
         className={clsx(
           isActive
-            ? 'bg-slate-900 text-white'
-            : 'text-slate-300 hover:bg-slate-700 hover:text-white',
+            ? 'bg-neutral-900 text-white'
+            : 'text-neutral-300 hover:bg-neutral-700 hover:text-white',
           'block cursor-pointer rounded-md px-3 py-2 text-base font-medium'
         )}
         aria-current={isActive ? 'page' : undefined}
@@ -100,14 +100,14 @@ function NavSearch() {
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <MagnifyingGlassIcon
-              className="h-5 w-5 text-slate-400"
+              className="h-5 w-5 text-neutral-400"
               aria-hidden="true"
             />
           </div>
           <input
             id="search"
             name="search"
-            className="block w-full rounded-md border border-transparent bg-slate-700 py-2 pl-10 pr-3 leading-5 text-slate-300 placeholder-slate-400 hover:bg-slate-600 focus:border-white focus:bg-white focus:text-slate-900 focus:outline-none focus:ring-white sm:text-sm"
+            className="block w-full rounded-md border border-transparent bg-neutral-700 py-2 pl-10 pr-3 leading-5 text-neutral-300 placeholder-neutral-400 hover:bg-neutral-600 focus:border-white focus:bg-white focus:text-neutral-900 focus:outline-none focus:ring-white sm:text-sm"
             placeholder="Search"
             type="search"
           />
