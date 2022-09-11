@@ -132,8 +132,7 @@ function NavLogInButton() {
     <div className="flex-shrink-0">
       <Button
         onClick={async () => {
-          const result = await signIn('discord');
-          console.log('auth result', result);
+          await signIn('discord');
         }}
       >
         Log In

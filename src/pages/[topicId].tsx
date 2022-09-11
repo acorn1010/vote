@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Button } from '../components/buttons/Button';
 import { Container } from '../components/containers/Container';
@@ -5,8 +6,7 @@ import { Skeleton } from '../components/loading/Skeleton';
 import { trpc } from '../utils/trpc';
 
 function useTopicId(): string {
-  const result = useRouter().query.topicId ?? '';
-  return typeof result === 'string' ? result : result[0] ?? '';
+  return '' + (useRouter().query.topicId ?? '');
 }
 
 export default function Topic() {
@@ -32,15 +32,15 @@ function Posts() {
 }
 
 function CreateNewPollButton(props: { className?: string }) {
+  const topicId = useTopicId();
+
   return (
-    <Button
-      className={props.className}
-      fullWidth
-      onClick={() => {
-        console.log('do something');
-      }}
-    >
-      Create New Poll
-    </Button>
+    <Link href={`/${topicId}/create`} passHref>
+      <a>
+        <Button className={props.className} fullWidth>
+          Create New Poll
+        </Button>
+      </a>
+    </Link>
   );
 }

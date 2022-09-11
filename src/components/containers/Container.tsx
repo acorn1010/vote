@@ -1,7 +1,14 @@
+import clsx from 'clsx';
 import { PropsWithChildren } from 'react';
 
-export function Container(props: PropsWithChildren<{}>) {
+type ContainerProps = {
+  className?: string;
+};
+export function Container(props: PropsWithChildren<ContainerProps>) {
+  const { className, children } = props;
   return (
-    <div className="m-auto w-full max-w-screen-lg p-2">{props.children}</div>
+    <div className={clsx('m-auto w-full max-w-screen-lg p-2', className)}>
+      {children}
+    </div>
   );
 }
