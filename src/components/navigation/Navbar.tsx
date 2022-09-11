@@ -73,7 +73,7 @@ function NavItem(props: NavItemProps) {
   // Extra '/' is needed so that / doesn't match /acorn1010.
   const isActive = (asPath + '/').startsWith(href + '/');
   return (
-    <Link href={href}>
+    <Link href={href} passHref>
       <Disclosure.Button
         as="a"
         className={clsx(
