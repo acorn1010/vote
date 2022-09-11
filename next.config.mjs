@@ -22,6 +22,6 @@ export default defineNextConfig({
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 
     // Allow images from the following external domains.
-    domains: ['tailwindui.com', 'images.unsplash.com'],
+    domains: ['tailwindui.com', 'images.unsplash.com', 'cdn.discordapp.com'],
   },
 });
