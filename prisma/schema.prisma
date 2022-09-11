@@ -2,6 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
   provider        = "prisma-client-js"
   previewFeatures = ["referentialIntegrity"]
 }
