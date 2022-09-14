@@ -57,7 +57,7 @@ function MobileMenuDropdown() {
 
   return (
     <Disclosure.Panel>
-      <div className="space-y-1 px-2 pt-2 pb-3">
+      <div className="space-y-1 px-2 pt-0 pb-3">
         {navigation.map((item) => (
           <NavItem key={item.href} {...item} />
         ))}
