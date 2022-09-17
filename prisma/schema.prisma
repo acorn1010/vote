@@ -49,19 +49,20 @@ model Session {
 }
 
 model User {
-  id              String        @id @default(cuid())
+  id              String           @id @default(cuid())
   name            String?
-  email           String?       @unique
+  email           String?          @unique
   emailVerified   DateTime?
   image           String?
   accounts        Account[]
   sessions        Session[]
-  createdAt       DateTime      @default(now())
+  createdAt       DateTime         @default(now())
   comments        Comment[]
   commentVotes    CommentVote[]
   posts           Post[]
   postVotes       PostVote[]
   moderatorTopics TopicToUser[]
+  PollOptionVote  PollOptionVote[]
 }
 
 model VerificationToken {
@@ -98,6 +99,24 @@ enum PostType {
   IMAGE_POLL
 }
 
+model PollOption {
+  id String @id @default(cuid())
+
+  // Image source, if any (e.g. "https://foony.com/img/games/wordhunt/logo.avif")
+  srcUri String? @db.Text
+
+  // Text to show for this poll, if any. (either srcUri or text will exist)
+  text String?
+
+  upvoteCount   Int
+  downvoteCount Int
+
+  Post   Post?   @relation(fields: [postId], references: [id])
+  postId String?
+
+  pollOptionVotes PollOptionVote[]
+}
+
 // TODO(acorn1010): Add option to fork a poll.
 model Post {
   id               String   @id @default(cuid())
@@ -113,6 +132,8 @@ model Post {
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId String?
 
+  options PollOption[]
+
   postVotes PostVote[]
 }
 
@@ -125,8 +146,13 @@ model Comment {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId       String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+
+  parentId String?
+  parent   Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Comment[] @relation("Replies")
+
   commentVotes CommentVote[]
 }
 
@@ -135,16 +161,33 @@ model CommentVote {
   user      User    @relation(fields: [userId], references: [id])
   commentId String
   userId    String
+  // True if this CommentVote is an upvote. Else a downvote.
+  isUpvote  Boolean
 
   @@id([commentId, userId])
 }
 
+// An upvote / downvote on a poll option. This 
+model PollOptionVote {
+  pollOption PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  pollOptionId String
+  userId       String
+  isUpvote     Boolean
+
+  @@id([pollOptionId, userId])
+}
+
+// An upvote / downvote on a post.
 model PostVote {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  postId String
-  userId String
+  postId   String
+  userId   String
+  // True if this PostVote is an upvote. Else a downvote.
+  isUpvote Boolean
 
   @@id([postId, userId])
 }
