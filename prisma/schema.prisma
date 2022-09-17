@@ -109,9 +109,6 @@ model PollOption {
   // Text to show for this poll, if any. (either srcUri or text will exist)
   text String?
 
-  upvoteCount   Int @default(0)
-  downvoteCount Int @default(0)
-
   Post           Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId         String
   PollOptionVote PollOptionVote[]
@@ -119,16 +116,14 @@ model PollOption {
 
 // TODO(acorn1010): Add option to fork a poll.
 model Post {
-  id            String   @id @default(cuid())
-  title         String
-  description   String?  @db.Text
-  type          PostType
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  type        PostType
   // If true, multiple poll options can be selected for each user.
   // isMultipleChoice Boolean
-  upvoteCount   Int      @default(0)
-  downvoteCount Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
 
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId String?
@@ -141,16 +136,18 @@ model Post {
 
   topic   Topic  @relation(fields: [topicId], references: [id])
   topicId String
+
+  // The comments on this post. Users can leave comments, and other users can reply to those
+  // comments.
+  comments Comment[]
 }
 
 // Comments made on a post.
 model Comment {
-  id            String   @id @default(cuid())
-  message       String?  @db.Text
-  upvoteCount   Int      @default(0)
-  downvoteCount Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(cuid())
+  message   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId String?
@@ -160,6 +157,9 @@ model Comment {
   children Comment[] @relation("Replies")
 
   commentVotes CommentVote[]
+
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
 }
 
 model CommentVote {
@@ -167,8 +167,8 @@ model CommentVote {
   user      User    @relation(fields: [userId], references: [id])
   commentId String
   userId    String
-  // True if this CommentVote is an upvote. Else a downvote.
-  isUpvote  Boolean
+  // 1 if an upvote, -1 if a downvote.
+  magnitude Int     @db.SmallInt
 
   @@id([commentId, userId])
 }
@@ -191,10 +191,10 @@ model PostVote {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  postId   String
-  userId   String
-  // True if this PostVote is an upvote. Else a downvote.
-  isUpvote Boolean
+  postId    String
+  userId    String
+  // 1 if an upvote, -1 if a downvote.
+  magnitude Int    @db.SmallInt
 
   @@id([postId, userId])
 }
