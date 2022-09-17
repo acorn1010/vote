@@ -85,10 +85,11 @@ model TopicToUser {
 
 // A topic, such as "acorn1010" or "foony". A "topic" has multiple "posts" in it.
 model Topic {
-  id        String   @id @default(cuid())
+  id        String   @id
   createdAt DateTime @default(now())
 
   moderators TopicToUser[]
+  Post       Post[]
 }
 
 enum PostType {
@@ -108,41 +109,46 @@ model PollOption {
   // Text to show for this poll, if any. (either srcUri or text will exist)
   text String?
 
-  upvoteCount   Int
-  downvoteCount Int
+  upvoteCount   Int @default(0)
+  downvoteCount Int @default(0)
 
-  Post   Post?   @relation(fields: [postId], references: [id])
-  postId String?
-
-  pollOptionVotes PollOptionVote[]
+  Post           Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId         String
+  PollOptionVote PollOptionVote[]
 }
 
 // TODO(acorn1010): Add option to fork a poll.
 model Post {
-  id               String   @id @default(cuid())
-  title            String
-  description      String?  @db.Text
-  type             PostType
-  isMultipleChoice Boolean
-  upvoteCount      Int
-  downvoteCount    Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @default(now())
+  id            String   @id @default(cuid())
+  title         String
+  description   String?  @db.Text
+  type          PostType
+  // If true, multiple poll options can be selected for each user.
+  // isMultipleChoice Boolean
+  upvoteCount   Int      @default(0)
+  downvoteCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
 
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId String?
 
   options PollOption[]
 
+  pollOptionVotes PollOptionVote[]
+
   postVotes PostVote[]
+
+  topic   Topic  @relation(fields: [topicId], references: [id])
+  topicId String
 }
 
 // Comments made on a post.
 model Comment {
   id            String   @id @default(cuid())
   message       String?  @db.Text
-  upvoteCount   Int
-  downvoteCount Int
+  upvoteCount   Int      @default(0)
+  downvoteCount Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -169,14 +175,15 @@ model CommentVote {
 
 // An upvote / downvote on a poll option. This 
 model PollOptionVote {
-  pollOption PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  post       Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pollOption PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
 
+  postId       String
   pollOptionId String
   userId       String
-  isUpvote     Boolean
 
-  @@id([pollOptionId, userId])
+  @@id([postId, userId])
 }
 
 // An upvote / downvote on a post.
