@@ -48,10 +48,16 @@ export default withTRPC<AppRouter>({
       ],
       url,
       transformer: superjson,
-      /**
-       * @link https://react-query.tanstack.com/reference/QueryClient
-       */
-      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
+      /** @link https://react-query.tanstack.com/reference/QueryClient */
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            staleTime: 60,
+            // Disabled so that we don't re-render components on window focus.
+            // refetchOnWindowFocus: true,
+          },
+        },
+      },
     };
   },
   /**
