@@ -2,9 +2,11 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import { upperFirst } from 'lodash';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { trpc } from '../../utils/trpc';
 import { Button } from '../buttons/Button';
 import { NavProfile } from './NavProfile';
 import { NavTitle } from './NavTitle';
@@ -48,11 +50,28 @@ function MobileMenuButton(props: { open?: boolean }) {
   );
 }
 
+const DEFAULT_CATEGORIES = [{ id: 'acorn1010' }, { id: 'foony' }];
+
+/** Given a `topicId` such as 'my-topic_ID'. */
+function toPrettyName(topicId: string) {
+  return topicId
+    .split(/[_-]/g)
+    .map((part) => upperFirst(part))
+    .join(' ');
+}
+
 function MobileMenuDropdown() {
+  const { data } = trpc.useQuery(['topic.getTop']);
+
+  const topCategories = [...(data ?? DEFAULT_CATEGORIES)].sort((a, z) =>
+    z.id.localeCompare(a.id)
+  );
   const navigation: NavItemProps[] = [
     { name: 'Home', href: '/' },
-    { name: 'Acorn1010', href: '/acorn1010' },
-    { name: 'Foony', href: '/foony' },
+    ...topCategories.map((topic) => ({
+      name: toPrettyName(topic.id),
+      href: `/${topic.id}`,
+    })),
   ];
 
   return (

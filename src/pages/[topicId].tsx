@@ -45,7 +45,7 @@ function Posts() {
           postId={post.id}
           topicId={topicId}
           upvoteCount={+post._count.postVotes}
-          downvoteCount={+post._count.postVotes}
+          downvoteCount={0}
           title={post.title}
         />
       ))}
@@ -55,6 +55,11 @@ function Posts() {
 
 function CreateNewPollButton(props: { className?: string }) {
   const topicId = useTopicId();
+
+  // Required so that next/router doesn't freak out with '//create' route.
+  if (!topicId) {
+    return <></>;
+  }
 
   return (
     <Link href={`/${topicId}/create`} passHref>
