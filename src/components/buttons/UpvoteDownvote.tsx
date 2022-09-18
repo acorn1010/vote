@@ -9,14 +9,14 @@ export function UpvoteDownvote(props: { postId: string; voteCount: number }) {
     <div className="mr-2 flex flex-col">
       <button onClick={() => voteOnPost.mutate({ postId, isUpvote: true })}>
         <ChevronUpIcon
-          className="h-7 w-7 text-neutral-400 hover:rounded-sm hover:bg-neutral-700 hover:text-neutral-100"
+          className="h-7 w-7 text-neutral-500 hover:rounded-sm hover:bg-neutral-700 hover:text-neutral-100"
           aria-hidden="true"
         />
       </button>
-      <p className="my-1 text-center leading-none">{voteCount}</p>
+      <p className="my-1 text-center text-sm font-semibold leading-none">{voteCount}</p>
       <button onClick={() => voteOnPost.mutate({ postId, isUpvote: false })}>
         <ChevronDownIcon
-          className="h-7 w-7 text-neutral-400 hover:rounded-sm hover:bg-neutral-700 hover:text-neutral-100"
+          className="h-7 w-7 text-neutral-500 hover:rounded-sm hover:bg-neutral-700 hover:text-neutral-100"
           aria-hidden="true"
         />
       </button>
