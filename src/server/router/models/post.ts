@@ -2,12 +2,33 @@ import { z } from 'zod';
 import { createRouter } from '../context';
 
 export const postRouter = createRouter()
+  .query('get', {
+    input: z.object({ postId: z.string().min(1) }),
+    async resolve({ ctx, input }) {
+      const { postId } = input;
+
+      /** Retrieves all posts for a given topic. */
+      return ctx.prisma.$transaction([
+        ctx.prisma.post.findUnique({
+          where: { id: postId },
+          include: {
+            _count: {
+              select: {
+                comments: true,
+              },
+            },
+          },
+        }),
+      ]);
+    },
+  })
   .query('getAll', {
     input: z.object({ topicId: z.string() }),
     async resolve({ ctx, input }) {
+      const topicId = input.topicId.toLowerCase();
       /** Retrieves all posts for a given topic. */
       return ctx.prisma.post.findMany({
-        where: { topicId: input.topicId },
+        where: { topicId },
         include: {
           _count: {
             select: {
@@ -28,15 +49,20 @@ export const postRouter = createRouter()
   })
   .mutation('create', {
     input: z.object({
-      topicId: z.string().min(1),
+      topicId: z
+        .string()
+        .min(1)
+        .max(255)
+        .regex(/[a-zA-Z0-9_-]/),
       title: z.string().min(1).max(255),
       description: z.optional(z.string()),
       type: z.enum(['MULTIPLE_CHOICE', 'IMAGE_POLL'] as const),
     }),
     async resolve({ ctx, input }) {
-      const { topicId, title, description, type } = input;
+      const { title, description, type } = input;
 
       // Create a new Topic if one doesn't already exist, or fail.
+      const topicId = input.topicId.toLowerCase();
       await ctx.prisma.topic
         .create({
           data: { id: topicId },
