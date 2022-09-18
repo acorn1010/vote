@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
-import { trpc } from '../utils/trpc';
+import { trpc } from '../../utils/trpc';
 
 dayjs.extend(relativeTime);
 type PostCardProps = {

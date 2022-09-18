@@ -23,12 +23,12 @@ export const postRouter = createRouter()
     },
   })
   .query('getAll', {
-    input: z.object({ topicId: z.string() }),
+    input: z.object({ topicId: z.optional(z.string()) }),
     async resolve({ ctx, input }) {
-      const topicId = input.topicId.toLowerCase();
       /** Retrieves all posts for a given topic. */
+      const topicId = input.topicId?.toLowerCase() ?? '';
       return ctx.prisma.post.findMany({
-        where: { topicId },
+        ...(topicId ? { where: { topicId } } : {}),
         include: {
           _count: {
             select: {
