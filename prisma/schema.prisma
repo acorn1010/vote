@@ -89,7 +89,7 @@ model Topic {
   createdAt DateTime @default(now())
 
   moderators TopicToUser[]
-  Post       Post[]
+  posts      Post[]
 }
 
 enum PostType {
@@ -145,7 +145,7 @@ model Post {
 // Comments made on a post.
 model Comment {
   id        String   @id @default(cuid())
-  message   String?  @db.Text
+  message   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
