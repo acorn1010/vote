@@ -15,7 +15,11 @@ const MyApp: AppType = ({
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <SessionProvider session={session}>
+    <SessionProvider
+      session={session}
+      refetchOnWindowFocus={false}
+      refetchInterval={60 * 60}
+    >
       <PageHeader />
       <Navbar />
       <Component {...pageProps} />
@@ -54,7 +58,7 @@ export default withTRPC<AppRouter>({
           queries: {
             staleTime: 60,
             // Disabled so that we don't re-render components on window focus.
-            // refetchOnWindowFocus: true,
+            refetchOnWindowFocus: false,
           },
         },
       },
