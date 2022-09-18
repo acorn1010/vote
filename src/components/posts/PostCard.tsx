@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
-import { trpc } from '../../utils/trpc';
+import { UpvoteDownvote } from '../buttons/UpvoteDownvote';
 
 dayjs.extend(relativeTime);
 type PostCardProps = {
@@ -28,22 +28,6 @@ export function PostCard(props: PostCardProps) {
           <p>{commentsCount} Comments</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function UpvoteDownvote(props: { postId: string; voteCount: number }) {
-  const { postId, voteCount } = props;
-  const voteOnPost = trpc.useMutation('post.vote');
-  return (
-    <div className="flex flex-col">
-      <button onClick={() => voteOnPost.mutate({ postId, isUpvote: true })}>
-        Upvote
-      </button>
-      <p>{voteCount}</p>
-      <button onClick={() => voteOnPost.mutate({ postId, isUpvote: false })}>
-        Downvote
-      </button>
     </div>
   );
 }
