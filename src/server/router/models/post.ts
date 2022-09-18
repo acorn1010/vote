@@ -17,6 +17,7 @@ export const postRouter = createRouter()
                 comments: true,
               },
             },
+            options: true,
           },
         }),
       ]);
@@ -33,11 +34,7 @@ export const postRouter = createRouter()
           _count: {
             select: {
               comments: true,
-              postVotes: true,
             },
-          },
-          postVotes: {
-            where: { magnitude: 1 },
           },
         },
         orderBy: {
@@ -113,11 +110,50 @@ export const postRouter = createRouter()
 
       try {
         const magnitude = isUpvote ? 1 : -1;
-        await ctx.prisma.postVote.upsert({
-          where: { postId_userId: { postId, userId } },
-          update: { postId, userId, magnitude },
-          create: { postId, userId, magnitude },
+
+        // First, handle the removal of any current votes.
+        const maybeVote = await ctx.prisma.postVote.findUnique({
+          where: { userId_postId: { userId, postId } },
         });
+        if (maybeVote) {
+          // There was an old vote. Remove it!
+          const oldMagnitude = maybeVote.magnitude;
+          await ctx.prisma.$transaction([
+            ctx.prisma.postVote.delete({
+              where: { userId_postId: { userId, postId } },
+            }),
+            ctx.prisma.post.update({
+              where: { id: postId },
+              data: {
+                totalCount: { decrement: oldMagnitude },
+                [oldMagnitude >= 0 ? 'upvotesCount' : 'downvotesCount']: {
+                  decrement: 1,
+                },
+              },
+            }),
+          ]);
+
+          // User had an old vote, so just remove their vote and return.
+          if (oldMagnitude === magnitude) {
+            return;
+          }
+        }
+
+        // Add the new vote
+        await ctx.prisma.$transaction([
+          ctx.prisma.postVote.create({
+            data: { userId, postId, magnitude },
+          }),
+          ctx.prisma.post.update({
+            where: { id: postId },
+            data: {
+              totalCount: { increment: magnitude },
+              [isUpvote ? 'upvotesCount' : 'downvotesCount']: {
+                increment: 1,
+              },
+            },
+          }),
+        ]);
       } catch (e) {
         console.error(e);
       }

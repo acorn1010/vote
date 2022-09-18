@@ -58,11 +58,11 @@ model User {
   sessions        Session[]
   createdAt       DateTime         @default(now())
   comments        Comment[]
-  commentVotes    CommentVote[]
   posts           Post[]
-  postVotes       PostVote[]
   moderatorTopics TopicToUser[]
   PollOptionVote  PollOptionVote[]
+  PostVote        PostVote[]
+  CommentVote     CommentVote[]
 }
 
 model VerificationToken {
@@ -109,9 +109,14 @@ model PollOption {
   // Text to show for this poll, if any. (either srcUri or text will exist)
   text String?
 
-  Post           Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId         String
-  PollOptionVote PollOptionVote[]
+  Post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+
+  // Total of downvotesCount + upvotesCount. Ideally this would be a virtual field.
+  // See: https://github.com/prisma/prisma/issues/3394
+  totalCount     Int @default(0)
+  downvotesCount Int @default(0)
+  upvotesCount   Int @default(0)
 }
 
 // TODO(acorn1010): Add option to fork a poll.
@@ -130,16 +135,20 @@ model Post {
 
   options PollOption[]
 
-  pollOptionVotes PollOptionVote[]
-
-  postVotes PostVote[]
+  // Total of downvotesCount + upvotesCount. Ideally this would be a virtual field.
+  // See: https://github.com/prisma/prisma/issues/3394
+  totalCount     Int @default(0)
+  downvotesCount Int @default(0)
+  upvotesCount   Int @default(0)
 
   topic   Topic  @relation(fields: [topicId], references: [id])
   topicId String
 
   // The comments on this post. Users can leave comments, and other users can reply to those
   // comments.
-  comments Comment[]
+  comments       Comment[]
+  PollOptionVote PollOptionVote[]
+  PostVote       PostVote[]
 }
 
 // Comments made on a post.
@@ -156,45 +165,43 @@ model Comment {
   parent   Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children Comment[] @relation("Replies")
 
-  commentVotes CommentVote[]
+  // Total of downvotesCount + upvotesCount. Ideally this would be a virtual field.
+  // See: https://github.com/prisma/prisma/issues/3394
+  totalCount     Int @default(0)
+  downvotesCount Int @default(0)
+  upvotesCount   Int @default(0)
 
-  post   Post   @relation(fields: [postId], references: [id])
-  postId String
+  post        Post          @relation(fields: [postId], references: [id])
+  postId      String
+  CommentVote CommentVote[]
+}
+
+model PollOptionVote {
+  user      User   @relation(fields: [userId], references: [id])
+  post      Post   @relation(fields: [postId], references: [id])
+  userId    String
+  postId    String
+  magnitude Int    @db.SmallInt
+
+  @@id([userId, postId])
+}
+
+model PostVote {
+  user      User   @relation(fields: [userId], references: [id])
+  post      Post   @relation(fields: [postId], references: [id])
+  userId    String
+  postId    String
+  magnitude Int    @db.SmallInt
+
+  @@id([userId, postId])
 }
 
 model CommentVote {
-  comment   Comment @relation(fields: [commentId], references: [id])
   user      User    @relation(fields: [userId], references: [id])
-  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id])
   userId    String
-  // 1 if an upvote, -1 if a downvote.
+  commentId String
   magnitude Int     @db.SmallInt
 
   @@id([commentId, userId])
-}
-
-// An upvote / downvote on a poll option. This 
-model PollOptionVote {
-  post       Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pollOption PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
-
-  postId       String
-  pollOptionId String
-  userId       String
-
-  @@id([postId, userId])
-}
-
-// An upvote / downvote on a post.
-model PostVote {
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  postId    String
-  userId    String
-  // 1 if an upvote, -1 if a downvote.
-  magnitude Int    @db.SmallInt
-
-  @@id([postId, userId])
 }

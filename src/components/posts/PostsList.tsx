@@ -17,9 +17,7 @@ export function PostsList() {
     return <Skeleton />;
   }
 
-  const posts = [...(data ?? [])].sort(
-    (a, z) => z._count.postVotes - a._count.postVotes
-  );
+  const posts = [...(data ?? [])].sort((a, z) => z.totalCount - a.totalCount);
   return (
     <div>
       {posts.map((post) => (
@@ -28,8 +26,7 @@ export function PostsList() {
           {...post}
           commentsCount={+post._count.comments}
           postId={post.id}
-          upvoteCount={+post._count.postVotes}
-          downvoteCount={0}
+          totalCount={post.totalCount}
         />
       ))}
     </div>
