@@ -61,7 +61,7 @@ function toPrettyName(topicId: string) {
 }
 
 function MobileMenuDropdown() {
-  const { data } = trpc.useQuery(['topic.getTop']);
+  const { data } = trpc.topic.getTop.useQuery();
 
   const topCategories = [...(data ?? DEFAULT_CATEGORIES)].sort((a, z) =>
     z.id.localeCompare(a.id)

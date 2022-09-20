@@ -6,10 +6,7 @@ import { useTopicId } from '../topics/useTopicId';
 /** Contains a list of posts. Each post is a question or poll for a given topic. */
 export function PostsList() {
   const topicId = useTopicId();
-  const { isError, isLoading, data } = trpc.useQuery([
-    'post.getAll',
-    { topicId },
-  ]);
+  const { isError, isLoading, data } = trpc.post.getAll.useQuery({ topicId });
 
   if (isError) {
     return <p>Failed to load posts.</p>;
