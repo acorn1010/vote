@@ -8,19 +8,18 @@ export const postRouter = createRouter()
       const { postId } = input;
 
       /** Retrieves all posts for a given topic. */
-      return ctx.prisma.$transaction([
-        ctx.prisma.post.findUnique({
-          where: { id: postId },
-          include: {
-            _count: {
-              select: {
-                comments: true,
-              },
+      return ctx.prisma.post.findUnique({
+        where: { id: postId },
+        include: {
+          _count: {
+            select: {
+              comments: true,
             },
-            options: true,
           },
-        }),
-      ]);
+          options: true,
+          user: true,
+        },
+      });
     },
   })
   .query('getAll', {
@@ -76,10 +75,7 @@ export const postRouter = createRouter()
             topicId,
             userId,
             options: {
-              create: [
-                { text: 'hello world' },
-                { text: 'does this thing work?' },
-              ],
+              create: [{ text: 'hello world' }, { text: 'does this thing work?' }],
             },
           },
           include: {
