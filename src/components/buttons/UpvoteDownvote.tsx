@@ -4,7 +4,7 @@ import { trpc } from '../../utils/trpc';
 /** Provides an up arrow, down arrow, and total vote count (upvotes + downvotes). */
 export function UpvoteDownvote(props: { postId: string; voteCount: number }) {
   const { postId, voteCount } = props;
-  const voteOnPost = trpc.useMutation('post.vote');
+  const voteOnPost = trpc.post.vote.useMutation();
   return (
     <div className="mr-2 flex flex-col">
       <button onClick={() => voteOnPost.mutate({ postId, isUpvote: true })}>

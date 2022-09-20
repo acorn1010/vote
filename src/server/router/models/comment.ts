@@ -1,12 +1,13 @@
 import { z } from 'zod';
-import { createRouter } from '../context';
+import { t } from '../../trpc';
 
-export const commentRouter = createRouter().query('getAll', {
-  input: z.object({ postId: z.string() }),
-  async resolve({ ctx, input }) {
+export const commentRouter = t.router({
+  getAll: t.procedure
+  .input( z.object({ postId: z.string() }) )
+  .query(async ({ ctx, input }) => {
     /** Retrieves all comments for a given post. */
     return ctx.prisma.post.findMany({
       where: { id: input.postId },
     });
-  },
+  })
 });

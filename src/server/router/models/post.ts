@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { createRouter } from '../context';
+import { t } from '../../trpc';
+//import { createRouter } from '../context';
 
-export const postRouter = createRouter()
-  .query('get', {
-    input: z.object({ postId: z.string().min(1) }),
-    async resolve({ ctx, input }) {
+export const postRouter = t.router({
+  get: t.procedure
+    .input( z.object({ postId: z.string().min(1) }) )
+    .query(async ({ ctx, input }) => {
       const { postId } = input;
 
       /** Retrieves all posts for a given topic. */
@@ -20,11 +21,10 @@ export const postRouter = createRouter()
           user: true,
         },
       });
-    },
-  })
-  .query('getAll', {
-    input: z.object({ topicId: z.optional(z.string()) }),
-    async resolve({ ctx, input }) {
+  }),
+  getAll: t.procedure
+    .input( z.object({ topicId: z.optional(z.string()) }) )
+    .query(async ({ ctx, input }) => {
       /** Retrieves all posts for a given topic. */
       const topicId = input.topicId?.toLowerCase() ?? '';
       return ctx.prisma.post.findMany({
@@ -41,20 +41,19 @@ export const postRouter = createRouter()
         },
         take: 100,
       });
-    },
-  })
-  .mutation('create', {
-    input: z.object({
-      topicId: z
-        .string()
-        .min(1)
-        .max(255)
-        .regex(/[a-zA-Z0-9_-]/),
-      title: z.string().min(1).max(255),
-      description: z.optional(z.string()),
-      type: z.enum(['MULTIPLE_CHOICE', 'IMAGE_POLL'] as const),
     }),
-    async resolve({ ctx, input }) {
+  create: t.procedure
+  .input( z.object({
+    topicId: z
+      .string()
+      .min(1)
+      .max(255)
+      .regex(/[a-zA-Z0-9_-]/),
+    title: z.string().min(1).max(255),
+    description: z.optional(z.string()),
+    type: z.enum(['MULTIPLE_CHOICE', 'IMAGE_POLL'] as const),
+  }) )
+  .mutation(async ({ ctx, input }) => {
       const { title, description, type } = input;
 
       // Create a new Topic if one doesn't already exist, or fail.
@@ -88,15 +87,14 @@ export const postRouter = createRouter()
       }
 
       throw new Error('Failed to create post.');
-    },
-  })
-  .mutation('vote', {
-    input: z.object({
-      postId: z.string().min(1),
-      isUpvote: z.boolean(),
-    }),
-    async resolve({ ctx, input }) {
-      const { isUpvote, postId } = input;
+  }),
+  vote: t.procedure
+  .input( z.object({
+    postId: z.string().min(1),
+    isUpvote: z.boolean(),
+  }) )
+  .mutation(async ({ ctx, input }) => {
+    const { isUpvote, postId } = input;
       // User is voting on a post itself.
 
       const userId = ctx.session?.user?.id;
@@ -153,5 +151,5 @@ export const postRouter = createRouter()
       } catch (e) {
         console.error(e);
       }
-    },
-  });
+  }),
+});

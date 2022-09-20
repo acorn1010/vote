@@ -10,7 +10,7 @@ function usePostId(): string {
 
 export default function Post() {
   const postId = usePostId();
-  const { data } = trpc.useQuery(['post.get', { postId }]);
+  const { data } = trpc.post.get.useQuery({ postId });
 
   if (!data) {
     return <Skeleton />;
