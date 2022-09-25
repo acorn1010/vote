@@ -41,7 +41,7 @@ export const postRouter = t.router({
       });
     }),
   create: t.procedure.input(createPostInput).mutation(async ({ ctx, input }) => {
-    const { title, description, type } = input;
+    const { title, description, type, options } = input;
 
     // Create a new Topic if one doesn't already exist, or fail.
     const topicId = input.topicId.toLowerCase();
@@ -61,7 +61,7 @@ export const postRouter = t.router({
           topicId,
           userId,
           options: {
-            create: [{ text: 'hello world' }, { text: 'does this thing work?' }],
+            create: options,
           },
         },
         include: {
