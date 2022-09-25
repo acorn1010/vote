@@ -16,17 +16,19 @@ type PostCardProps = {
 export function PostCard(props: PostCardProps) {
   const { postId, title, totalCount, commentsCount, topicId, createdAt } = props;
   return (
-    <div className="my-2 flex rounded-md bg-slate-800 p-2">
-      <UpvoteDownvote postId={postId} voteCount={totalCount} />
-      <div className="flex flex-col">
-        <Link href={`/${topicId}/${postId}`}>
-          <a className="flex-grow text-lg text-neutral-300 hover:text-white">Title: {title}</a>
-        </Link>
-        <div className="flex gap-2">
-          <p className="text-xs text-neutral-500">submitted {dayjs(createdAt).from(dayjs())}</p>
-          <p className="text-xs font-bold text-neutral-300">{commentsCount} Comments</p>
+    <Link href={`/${topicId}/${postId}`}>
+      <div className="group my-2 flex cursor-pointer rounded-md bg-neutral-800 p-2 hover:bg-neutral-700">
+        <UpvoteDownvote className="hover:bg-neutral-600" postId={postId} voteCount={totalCount} />
+        <div className="flex flex-col">
+          <a className="flex-grow text-lg text-neutral-300 group-hover:text-white">
+            Title: {title}
+          </a>
+          <div className="flex gap-2">
+            <p className="text-xs text-neutral-500">submitted {dayjs(createdAt).from(dayjs())}</p>
+            <p className="text-xs font-bold text-neutral-300">{commentsCount} Comments</p>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
