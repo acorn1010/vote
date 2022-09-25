@@ -21,7 +21,7 @@ export function PostsList() {
         <PostCard
           key={post.id}
           {...post}
-          commentsCount={+post._count.comments}
+          commentsCount={post.commentsCount}
           postId={post.id}
           totalCount={post.totalCount}
         />

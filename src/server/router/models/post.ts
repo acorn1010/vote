@@ -31,13 +31,6 @@ export const postRouter = t.router({
       const topicId = input.topicId?.toLowerCase() ?? '';
       return ctx.prisma.post.findMany({
         ...(topicId ? { where: { topicId } } : {}),
-        include: {
-          _count: {
-            select: {
-              comments: true,
-            },
-          },
-        },
         orderBy: {
           createdAt: 'desc',
         },

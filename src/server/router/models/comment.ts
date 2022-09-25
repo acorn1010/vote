@@ -8,4 +8,6 @@ export const commentRouter = t.router({
       where: { id: input.postId },
     });
   }),
+  // FIXME(acorn1010): When implementing the ability to create comments, make SURE that you
+  //  increment the `commentsCount` in the `Post` table.
 });

@@ -140,6 +140,7 @@ model Post {
   totalCount     Int @default(0)
   downvotesCount Int @default(0)
   upvotesCount   Int @default(0)
+  commentsCount  Int @default(0)
 
   topic   Topic  @relation(fields: [topicId], references: [id])
   topicId String
