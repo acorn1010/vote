@@ -41,7 +41,7 @@ export default function Create() {
     setShowErrors(false);
     setIsSending(true);
     try {
-      await createPost.mutateAsync(data);
+      await createPost.mutateAsync({ ...data, topicId, type: 'MULTIPLE_CHOICE' });
     } finally {
       setIsSending(false);
     }
