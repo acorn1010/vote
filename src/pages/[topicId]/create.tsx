@@ -1,6 +1,7 @@
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { forwardRef, InputHTMLAttributes, PropsWithChildren, Ref, useState } from 'react';
 import {
   Control,
@@ -36,12 +37,14 @@ export default function Create() {
   const [isSending, setIsSending] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const topicId = useTopicId();
+  const router = useRouter();
 
   const onSubmit = async (data: CreatePostInputSchema) => {
     setShowErrors(false);
     setIsSending(true);
     try {
-      await createPost.mutateAsync({ ...data, topicId, type: 'MULTIPLE_CHOICE' });
+      const result = await createPost.mutateAsync({ ...data, topicId, type: 'MULTIPLE_CHOICE' });
+      await router.replace(`/${topicId}/${result.id}`);
     } finally {
       setIsSending(false);
     }
@@ -84,7 +87,7 @@ export default function Create() {
           <input
             type="submit"
             disabled={isSending}
-            className="relative rounded-md border border-transparent bg-primary-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-slate-800"
+            className="relative cursor-pointer rounded-md border border-transparent bg-primary-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-slate-800"
           />
           <ErrorMessage
             errors={showErrors ? errors : {}}
