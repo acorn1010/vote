@@ -1,29 +1,27 @@
 import { z } from 'zod';
+import { createPostInput } from '../../../validation/post';
 import { t } from '../../trpc';
-//import { createRouter } from '../context';
 
 export const postRouter = t.router({
-  get: t.procedure
-    .input( z.object({ postId: z.string().min(1) }) )
-    .query(async ({ ctx, input }) => {
-      const { postId } = input;
+  get: t.procedure.input(z.object({ postId: z.string().min(1) })).query(async ({ ctx, input }) => {
+    const { postId } = input;
 
-      /** Retrieves all posts for a given topic. */
-      return ctx.prisma.post.findUnique({
-        where: { id: postId },
-        include: {
-          _count: {
-            select: {
-              comments: true,
-            },
+    /** Retrieves all posts for a given topic. */
+    return ctx.prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        _count: {
+          select: {
+            comments: true,
           },
-          options: true,
-          user: true,
         },
-      });
+        options: true,
+        user: true,
+      },
+    });
   }),
   getAll: t.procedure
-    .input( z.object({ topicId: z.optional(z.string()) }) )
+    .input(z.object({ topicId: z.optional(z.string()) }))
     .query(async ({ ctx, input }) => {
       /** Retrieves all posts for a given topic. */
       const topicId = input.topicId?.toLowerCase() ?? '';
@@ -42,59 +40,50 @@ export const postRouter = t.router({
         take: 100,
       });
     }),
-  create: t.procedure
-  .input( z.object({
-    topicId: z
-      .string()
-      .min(1)
-      .max(255)
-      .regex(/[a-zA-Z0-9_-]/),
-    title: z.string().min(1).max(255),
-    description: z.optional(z.string()),
-    type: z.enum(['MULTIPLE_CHOICE', 'IMAGE_POLL'] as const),
-  }) )
-  .mutation(async ({ ctx, input }) => {
-      const { title, description, type } = input;
+  create: t.procedure.input(createPostInput).mutation(async ({ ctx, input }) => {
+    const { title, description, type } = input;
 
-      // Create a new Topic if one doesn't already exist, or fail.
-      const topicId = input.topicId.toLowerCase();
-      await ctx.prisma.topic
-        .create({
-          data: { id: topicId },
-        })
-        .catch(() => ({}));
+    // Create a new Topic if one doesn't already exist, or fail.
+    const topicId = input.topicId.toLowerCase();
+    await ctx.prisma.topic
+      .create({
+        data: { id: topicId },
+      })
+      .catch(() => ({}));
 
-      try {
-        const userId = ctx.session?.user?.id;
-        const { id } = await ctx.prisma.post.create({
-          data: {
-            title,
-            description,
-            type,
-            topicId,
-            userId,
-            options: {
-              create: [{ text: 'hello world' }, { text: 'does this thing work?' }],
-            },
+    try {
+      const userId = ctx.session?.user?.id;
+      const { id } = await ctx.prisma.post.create({
+        data: {
+          title,
+          description,
+          type,
+          topicId,
+          userId,
+          options: {
+            create: [{ text: 'hello world' }, { text: 'does this thing work?' }],
           },
-          include: {
-            options: true,
-          },
-        });
-        return { id, title };
-      } catch (e) {
-        console.error('Failed to create post.', e);
-      }
+        },
+        include: {
+          options: true,
+        },
+      });
+      return { id, title };
+    } catch (e) {
+      console.error('Failed to create post.', e);
+    }
 
-      throw new Error('Failed to create post.');
+    throw new Error('Failed to create post.');
   }),
   vote: t.procedure
-  .input( z.object({
-    postId: z.string().min(1),
-    isUpvote: z.boolean(),
-  }) )
-  .mutation(async ({ ctx, input }) => {
-    const { isUpvote, postId } = input;
+    .input(
+      z.object({
+        postId: z.string().min(1),
+        isUpvote: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { isUpvote, postId } = input;
       // User is voting on a post itself.
 
       const userId = ctx.session?.user?.id;
@@ -151,5 +140,5 @@ export const postRouter = t.router({
       } catch (e) {
         console.error(e);
       }
-  }),
+    }),
 });
