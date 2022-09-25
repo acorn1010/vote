@@ -5,7 +5,7 @@ import { PostsList } from '../components/posts/PostsList';
 export default function Topic() {
   return (
     <Container>
-      <CreateNewPollButton className="mb-2" />
+      <CreateNewPollButton className="my-2" />
       <PostsList />
     </Container>
   );
