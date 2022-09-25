@@ -1,7 +1,9 @@
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { UpvoteDownvote } from '../../components/buttons/UpvoteDownvote';
 import { Container } from '../../components/containers/Container';
 import { Skeleton } from '../../components/loading/Skeleton';
+import { useTopicId } from '../../components/topics/useTopicId';
 import { trpc } from '../../utils/trpc';
 
 function usePostId(): string {
@@ -18,6 +20,7 @@ export default function Post() {
 
   return (
     <Container>
+      <PostHead title={data.title} />
       <div className="my-2 flex rounded-md bg-slate-800 p-2">
         <UpvoteDownvote postId={postId} voteCount={data.totalCount} />
         <div className="flex flex-col">
@@ -28,5 +31,16 @@ export default function Post() {
         </div>
       </div>
     </Container>
+  );
+}
+
+function PostHead({ title }: { title: string }) {
+  const topicId = useTopicId();
+  return (
+    <Head>
+      <title>
+        {title} | {topicId} | Vote
+      </title>
+    </Head>
   );
 }
