@@ -1,7 +1,8 @@
 import { PollOption } from '@prisma/client';
+import { shuffle } from 'lodash';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '../../components/buttons/Button';
 import { UpvoteDownvote } from '../../components/buttons/UpvoteDownvote';
 import { Container } from '../../components/containers/Container';
@@ -52,10 +53,12 @@ function PostPollOptions(props: { options: PollOption[] }) {
   const { options } = props;
   const [isSending, setIsSending] = useState(false);
   const voteOption = trpc.post.voteOption.useMutation();
+  // Randomize the order of `options` to reduce vote bias.
+  const randomizedOptions = useMemo(() => shuffle(options), [options]);
 
   return (
     <div className="my-2 flex flex-col gap-2">
-      {options.map((option) => (
+      {randomizedOptions.map((option) => (
         <Button
           key={option.id}
           fullWidth
@@ -64,6 +67,8 @@ function PostPollOptions(props: { options: PollOption[] }) {
             setIsSending(true);
             try {
               await voteOption.mutateAsync({ postId: option.postId, pollOptionId: option.id });
+            } catch (e) {
+              console.error(e);
             } finally {
               setIsSending(false);
             }
