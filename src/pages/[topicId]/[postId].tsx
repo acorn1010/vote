@@ -1,5 +1,8 @@
+import { PollOption } from '@prisma/client';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { Button } from '../../components/buttons/Button';
 import { UpvoteDownvote } from '../../components/buttons/UpvoteDownvote';
 import { Container } from '../../components/containers/Container';
 import { Skeleton } from '../../components/loading/Skeleton';
@@ -26,7 +29,7 @@ export default function Post() {
         <div className="flex flex-col">
           <h1>{data.title}</h1>
           <p>Posted by {data.user ? data.user.name : 'Anonymous'}</p>
-          <p>TODO(acorn1010): Add poll here.</p>
+          <PostPollOptions options={data.options} />
           <p>For a different outcome, invite people who share that opinion to vote!</p>
         </div>
       </div>
@@ -42,5 +45,33 @@ function PostHead({ title }: { title: string }) {
         {title} | {topicId} | Vote
       </title>
     </Head>
+  );
+}
+
+function PostPollOptions(props: { options: PollOption[] }) {
+  const { options } = props;
+  const [isSending, setIsSending] = useState(false);
+  const voteOption = trpc.post.voteOption.useMutation();
+
+  return (
+    <div className="my-2 flex flex-col gap-2">
+      {options.map((option) => (
+        <Button
+          key={option.id}
+          fullWidth
+          disabled={isSending}
+          onClick={async () => {
+            setIsSending(true);
+            try {
+              await voteOption.mutateAsync({ postId: option.postId, pollOptionId: option.id });
+            } finally {
+              setIsSending(false);
+            }
+          }}
+        >
+          {option.text}
+        </Button>
+      ))}
+    </div>
   );
 }

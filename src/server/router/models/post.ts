@@ -1,8 +1,10 @@
+import { Session } from 'next-auth';
 import { z } from 'zod';
 import { createPostInput } from '../../../validation/post';
 import { t } from '../../trpc';
 
 export const postRouter = t.router({
+  /** Retrieves information about a single post (poll). */
   get: t.procedure.input(z.object({ postId: z.string().min(1) })).query(async ({ ctx, input }) => {
     const { postId } = input;
 
@@ -20,6 +22,8 @@ export const postRouter = t.router({
       },
     });
   }),
+
+  /** Returns the top 100 posts for this topic. */
   getAll: t.procedure
     .input(z.object({ topicId: z.optional(z.string()) }))
     .query(async ({ ctx, input }) => {
@@ -40,6 +44,8 @@ export const postRouter = t.router({
         take: 100,
       });
     }),
+
+  /** Creates a new post (poll) with options. */
   create: t.procedure.input(createPostInput).mutation(async ({ ctx, input }) => {
     const { title, description, type, options } = input;
 
@@ -75,6 +81,43 @@ export const postRouter = t.router({
 
     throw new Error('Failed to create post.');
   }),
+
+  /** Votes on a poll. */
+  voteOption: t.procedure
+    .input(
+      z.object({
+        postId: z.string().min(1),
+        pollOptionId: z.string().min(1),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { postId, pollOptionId } = input;
+      const userId = assertUserId(ctx);
+
+      // TODO(acorn1010): Implement confidence interval to figure out when poll should end (when
+      //  consensus is reached).
+      //  @link https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval
+
+      try {
+        await ctx.prisma.$transaction([
+          ctx.prisma.pollOptionVote.create({
+            data: { userId, postId, magnitude: 1 },
+          }),
+          ctx.prisma.pollOption.update({
+            where: { id: pollOptionId },
+            data: {
+              totalCount: { increment: 1 },
+              upvotesCount: { increment: 1 },
+            },
+          }),
+        ]);
+      } catch (e) {
+        console.error('Failed to vote for option.', { postId, pollOptionId, userId }, e);
+        throw new Error('Unable to vote on poll at this time.');
+      }
+    }),
+
+  /** Votes on a post to move it up in the topic and make it more visible for others. */
   vote: t.procedure
     .input(
       z.object({
@@ -85,11 +128,7 @@ export const postRouter = t.router({
     .mutation(async ({ ctx, input }) => {
       const { isUpvote, postId } = input;
       // User is voting on a post itself.
-
-      const userId = ctx.session?.user?.id;
-      if (!userId) {
-        throw new Error('You must be signed in to vote.');
-      }
+      const userId = assertUserId(ctx);
 
       try {
         const magnitude = isUpvote ? 1 : -1;
@@ -142,3 +181,12 @@ export const postRouter = t.router({
       }
     }),
 });
+
+/** Returns the session's userId, else throws an exception. */
+function assertUserId(ctx: { session: Session | null }) {
+  const userId = ctx.session?.user?.id;
+  if (!userId) {
+    throw new Error('You must be signed in to vote.');
+  }
+  return userId;
+}

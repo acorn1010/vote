@@ -3,11 +3,13 @@ import { PropsWithChildren } from 'react';
 
 type ButtonProps = {
   className?: string;
+  /** True if this Button should be disabled (not clickable). Default false. */
+  disabled?: boolean;
   fullWidth?: boolean;
   onClick?: () => void;
 };
 export function Button(props: PropsWithChildren<ButtonProps>) {
-  const { className, children, fullWidth, onClick } = props;
+  const { className, children, disabled, fullWidth, onClick } = props;
   return (
     <button
       className={clsx(
