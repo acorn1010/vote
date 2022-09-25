@@ -87,7 +87,8 @@ export default function Create() {
           <input
             type="submit"
             disabled={isSending}
-            className="relative cursor-pointer rounded-md border border-transparent bg-primary-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-slate-800"
+            className="relative w-full cursor-pointer rounded-md border border-transparent bg-primary-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-slate-800 disabled:bg-gray-600"
+            value="Create Poll"
           />
           <ErrorMessage
             errors={showErrors ? errors : {}}
