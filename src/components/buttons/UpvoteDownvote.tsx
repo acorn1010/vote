@@ -3,9 +3,18 @@ import clsx from 'clsx';
 import { MouseEventHandler } from 'react';
 import { trpc } from '../../utils/trpc';
 
+type UpvoteDownvoteProps = {
+  className?: string;
+  /** 1 if the user has upvoted this post, -1 if they've downvoted, else 0. */
+  userMagnitude: -1 | 0 | 1;
+  postId: string;
+  /** Number of (upvotes - downvotes) this Post has received so far. */
+  voteCount: number;
+};
+
 /** Provides an up arrow, down arrow, and total vote count (upvotes + downvotes). */
-export function UpvoteDownvote(props: { className?: string; postId: string; voteCount: number }) {
-  const { className, postId, voteCount } = props;
+export function UpvoteDownvote(props: UpvoteDownvoteProps) {
+  const { className, postId, userMagnitude, voteCount } = props;
   const voteOnPost = trpc.post.vote.useMutation();
 
   const makeHandleClick =
@@ -16,17 +25,23 @@ export function UpvoteDownvote(props: { className?: string; postId: string; vote
     };
 
   const iconClass = clsx(
-    'h-7 w-7 text-neutral-500 hover:rounded-sm hover:bg-neutral-700 hover:text-neutral-100',
+    'h-7 w-7 text-neutral-500 hover:rounded-sm hover:bg-neutral-700',
     className
   );
   return (
     <div className="mr-2 flex flex-col">
       <button onClick={makeHandleClick(true)}>
-        <ChevronUpIcon className={iconClass} aria-hidden="true" />
+        <ChevronUpIcon
+          className={clsx(iconClass, 'hover:text-green-400', userMagnitude > 0 && 'text-green-500')}
+          aria-hidden="true"
+        />
       </button>
       <p className="my-1 text-center text-sm font-semibold leading-none">{voteCount}</p>
       <button onClick={makeHandleClick(false)}>
-        <ChevronDownIcon className={iconClass} aria-hidden="true" />
+        <ChevronDownIcon
+          className={clsx(iconClass, 'hover:text-red-400', userMagnitude < 0 && 'text-red-500')}
+          aria-hidden="true"
+        />
       </button>
     </div>
   );

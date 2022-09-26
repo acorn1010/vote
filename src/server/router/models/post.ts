@@ -27,10 +27,20 @@ export const postRouter = t.router({
   getAll: t.procedure
     .input(z.object({ topicId: z.optional(z.string()) }))
     .query(async ({ ctx, input }) => {
+      const userId = ctx.session?.user?.id;
+
       /** Retrieves all posts for a given topic. */
       const topicId = input.topicId?.toLowerCase() ?? '';
+
       return ctx.prisma.post.findMany({
         ...(topicId ? { where: { topicId } } : {}),
+        include: {
+          PostVote: {
+            where: {
+              userId: userId ?? '',
+            },
+          },
+        },
         orderBy: {
           createdAt: 'desc',
         },

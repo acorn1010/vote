@@ -21,6 +21,7 @@ export function PostsList() {
         <PostCard
           key={post.id}
           {...post}
+          userMagnitude={(post.PostVote[0]?.magnitude ?? 0) as -1 | 0 | 1}
           commentsCount={post.commentsCount}
           postId={post.id}
           totalCount={post.totalCount}
