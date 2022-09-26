@@ -1,6 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import { MouseEventHandler } from 'react';
+import { MouseEventHandler, useEffect, useState } from 'react';
 import { trpc } from '../../utils/trpc';
 
 type UpvoteDownvoteProps = {
@@ -16,13 +16,19 @@ type UpvoteDownvoteProps = {
 export function UpvoteDownvote(props: UpvoteDownvoteProps) {
   const { className, postId, userMagnitude, voteCount } = props;
   const voteOnPost = trpc.post.vote.useMutation();
+  const [magnitude, setMagnitude] = useState(userMagnitude);
 
   const makeHandleClick =
-    (isUpvote: boolean): MouseEventHandler =>
-    (e) => {
+    (newMagnitude: -1 | 0 | 1): MouseEventHandler =>
+    async (e) => {
       e.preventDefault();
-      voteOnPost.mutate({ postId, isUpvote });
+      setMagnitude(newMagnitude);
+      await voteOnPost.mutateAsync({ postId, magnitude: newMagnitude });
     };
+
+  useEffect(() => {
+    setMagnitude(userMagnitude);
+  }, [userMagnitude]);
 
   const iconClass = clsx(
     'h-7 w-7 text-neutral-500 hover:rounded-sm hover:bg-neutral-700',
@@ -30,16 +36,18 @@ export function UpvoteDownvote(props: UpvoteDownvoteProps) {
   );
   return (
     <div className="mr-2 flex flex-col">
-      <button onClick={makeHandleClick(true)}>
+      <button onClick={makeHandleClick(magnitude > 0 ? 0 : 1)}>
         <ChevronUpIcon
-          className={clsx(iconClass, 'hover:text-green-400', userMagnitude > 0 && 'text-green-500')}
+          className={clsx(iconClass, 'hover:text-green-400', magnitude > 0 && 'text-green-500')}
           aria-hidden="true"
         />
       </button>
-      <p className="my-1 text-center text-sm font-semibold leading-none">{voteCount}</p>
-      <button onClick={makeHandleClick(false)}>
+      <p className="my-1 text-center text-sm font-semibold leading-none">
+        {voteCount + (magnitude - userMagnitude)}
+      </p>
+      <button onClick={makeHandleClick(magnitude < 0 ? 0 : -1)}>
         <ChevronDownIcon
-          className={clsx(iconClass, 'hover:text-red-400', userMagnitude < 0 && 'text-red-500')}
+          className={clsx(iconClass, 'hover:text-red-400', magnitude < 0 && 'text-red-500')}
           aria-hidden="true"
         />
       </button>

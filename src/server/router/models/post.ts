@@ -125,17 +125,15 @@ export const postRouter = t.router({
     .input(
       z.object({
         postId: z.string().min(1),
-        isUpvote: z.boolean(),
+        magnitude: z.number().gte(-1).lte(1).int(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { isUpvote, postId } = input;
+      const { magnitude, postId } = input;
       // User is voting on a post itself.
       const userId = assertUserId(ctx);
 
       try {
-        const magnitude = isUpvote ? 1 : -1;
-
         // First, handle the removal of any current votes.
         const maybeVote = await ctx.prisma.postVote.findUnique({
           where: { userId_postId: { userId, postId } },
@@ -164,6 +162,11 @@ export const postRouter = t.router({
           }
         }
 
+        // If the user wants to remove their vote without any new vote, do that.
+        if (!magnitude) {
+          return;
+        }
+
         // Add the new vote
         await ctx.prisma.$transaction([
           ctx.prisma.postVote.create({
@@ -173,7 +176,7 @@ export const postRouter = t.router({
             where: { id: postId },
             data: {
               totalCount: { increment: magnitude },
-              [isUpvote ? 'upvotesCount' : 'downvotesCount']: {
+              [magnitude >= 0 ? 'upvotesCount' : 'downvotesCount']: {
                 increment: 1,
               },
             },
