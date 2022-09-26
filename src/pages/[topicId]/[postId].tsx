@@ -26,7 +26,11 @@ export default function Post() {
     <Container>
       <PostHead title={data.title} />
       <div className="my-2 flex rounded-md bg-slate-800 p-2">
-        <UpvoteDownvote postId={postId} voteCount={data.totalCount} />
+        <UpvoteDownvote
+          postId={postId}
+          voteCount={data.totalCount}
+          userMagnitude={(data.PostVote[0]?.magnitude ?? 0) as -1 | 0 | 1}
+        />
         <div className="flex flex-col">
           <h1>{data.title}</h1>
           <p>Posted by {data.user ? data.user.name : 'Anonymous'}</p>

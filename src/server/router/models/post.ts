@@ -7,6 +7,7 @@ export const postRouter = t.router({
   /** Retrieves information about a single post (poll). */
   get: t.procedure.input(z.object({ postId: z.string().min(1) })).query(async ({ ctx, input }) => {
     const { postId } = input;
+    const userId = ctx.session?.user?.id;
 
     /** Retrieves all posts for a given topic. */
     return ctx.prisma.post.findUnique({
@@ -15,6 +16,11 @@ export const postRouter = t.router({
         _count: {
           select: {
             comments: true,
+          },
+        },
+        PostVote: {
+          where: {
+            userId: userId ?? '',
           },
         },
         options: true,
