@@ -31,9 +31,7 @@ export function PostCard(props: PostCardProps) {
           voteCount={totalCount}
         />
         <div className="flex flex-col">
-          <a className="flex-grow text-lg text-neutral-300 group-hover:text-white">
-            Title: {title}
-          </a>
+          <a className="flex-grow text-lg text-neutral-300 group-hover:text-white">{title}</a>
           <div className="flex gap-2">
             <p className="text-xs text-neutral-500">submitted {dayjs(createdAt).from(dayjs())}</p>
             <p className="text-xs font-bold text-neutral-300">{commentsCount} Comments</p>
