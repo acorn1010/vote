@@ -13,11 +13,6 @@ export const postRouter = t.router({
     return ctx.prisma.post.findUnique({
       where: { id: postId },
       include: {
-        _count: {
-          select: {
-            comments: true,
-          },
-        },
         PostVote: {
           where: {
             userId: userId ?? '',
