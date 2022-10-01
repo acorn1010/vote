@@ -47,7 +47,6 @@ export function PostPollOptions(props: PostPollOptionsProps) {
   }, [endsAt, setHasEnded]);
 
   const winningPoll = hasEnded ? getWinningPoll(randomizedOptions) : null;
-
   const totalVotes = sumBy(options, (option) => option.upvotesCount);
 
   return (
@@ -100,9 +99,6 @@ function getOptionStyle(percentValue: number): CSSProperties {
     backgroundImage: `linear-gradient(to right, ${foreground}, ${foreground} ${percent}%, ${background} ${percent}%, ${background})`,
   };
 }
-
-/** Returns the percent of votes [0, 1] that the given option has received. */
-function getOptionPercent() {}
 
 const MINIMUM_VOTE_COUNT = 2;
 
