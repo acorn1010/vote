@@ -1,11 +1,8 @@
 import { PollOption, PollOptionVote, Post, PostVote } from '@prisma/client';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
 import { UpvoteDownvote } from '../buttons/UpvoteDownvote';
 import { PostPoll } from './PostPoll';
 
-dayjs.extend(relativeTime);
 type PostCardProps = {
   post: Post & { PostVote: PostVote[]; options: (PollOption & { userVotes: PollOptionVote[] })[] };
 };

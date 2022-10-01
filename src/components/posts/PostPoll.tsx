@@ -1,8 +1,10 @@
 import { PollOption, PollOptionVote, Post, PostVote } from '@prisma/client';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { sumBy } from 'lodash';
 import { PostPollOptions } from './PostPollOptions';
 
+dayjs.extend(relativeTime);
 type PostPollProps = {
   post: Post & { PostVote: PostVote[]; options: (PollOption & { userVotes: PollOptionVote[] })[] };
   variant: 'inline' | 'fullWidth';
