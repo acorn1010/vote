@@ -28,7 +28,7 @@ export default function Post() {
           voteCount={post.totalCount}
           userMagnitude={(post.PostVote[0]?.magnitude ?? 0) as -1 | 0 | 1}
         />
-        <div className="flex flex-col">
+        <div className="flex w-full flex-col">
           <h1>{post.title}</h1>
           <p>Posted by {post.user ? post.user.name : 'Anonymous'}</p>
           <PostPoll post={post} variant="fullWidth" />

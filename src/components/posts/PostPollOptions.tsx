@@ -50,12 +50,24 @@ export function PostPollOptions(props: PostPollOptionsProps) {
   const totalVotes = sumBy(options, (option) => option.upvotesCount);
 
   return (
-    <div className={clsx('flex gap-2', variant === 'fullWidth' && 'flex-col', spacing)}>
+    <div
+      className={clsx(
+        `PostPollOptions flex grid w-full gap-2`,
+        variant === 'fullWidth' ? 'flex-col' : 'w-fit',
+        spacing
+      )}
+      style={
+        variant === 'inline'
+          ? { gridTemplateColumns: `repeat(${randomizedOptions.length}, auto)` }
+          : {}
+      }
+    >
       {randomizedOptions.map((option) => (
         <Button
           key={option.id}
           className={clsx(
-            'py-1 px-2',
+            'overflow-hidden overflow-ellipsis whitespace-nowrap py-1 px-2',
+            variant === 'fullWidth' && 'pr-12',
             option.userVotes[0]?.pollOptionId === option.id && 'bg-green-500 disabled:bg-green-500',
             hasEnded && winningPoll !== option.id && 'border-neutral-600',
             winningPoll === option.id && 'border-amber-400'
