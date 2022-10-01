@@ -162,7 +162,7 @@ function PostOption(props: {
       <div className="relative flex">
         <Input
           key={`option-${index}`}
-          className="pr-[20px]"
+          className="pr-9"
           placeholder={`Option ${index + 1}`}
           type="text"
           defaultValue={value}
