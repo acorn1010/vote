@@ -1,3 +1,4 @@
+import { PollOption, Post } from '@prisma/client';
 import { Session } from 'next-auth';
 import { z } from 'zod';
 import { addDays } from '../../../utils/DateUtils';
@@ -11,7 +12,7 @@ export const postRouter = t.router({
     const userId = ctx.session?.user?.id;
 
     /** Retrieves all posts for a given topic. */
-    return ctx.prisma.post.findUnique({
+    const result = await ctx.prisma.post.findUnique({
       where: { id: postId },
       include: {
         PostVote: {
@@ -29,6 +30,11 @@ export const postRouter = t.router({
         user: true,
       },
     });
+
+    if (result) {
+      filterPost(result, new Date());
+    }
+    return result;
   }),
 
   /** Returns the top 100 posts for this topic. */
@@ -65,14 +71,7 @@ export const postRouter = t.router({
       // Zero out vote counts for polls that haven't ended yet.
       const now = new Date();
       for (const post of result) {
-        if (post.endsAt > now) {
-          continue;
-        }
-        for (const option of post.options) {
-          option.downvotesCount = 0;
-          option.totalCount = 0;
-          option.upvotesCount = 0;
-        }
+        filterPost(post, now);
       }
 
       return result;
@@ -132,6 +131,12 @@ export const postRouter = t.router({
       // TODO(acorn1010): Implement confidence interval to figure out when poll should end (when
       //  consensus is reached).
       //  @link https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval
+
+      // Verify that post is still going on.
+      const post = await ctx.prisma.post.findUnique({ where: { id: postId } });
+      if (post && post.endsAt <= new Date()) {
+        throw new Error('Poll has ended.');
+      }
 
       try {
         await ctx.prisma.$transaction([
@@ -226,4 +231,17 @@ function assertUserId(ctx: { session: Session | null }) {
     throw new Error('You must be signed in to vote.');
   }
   return userId;
+}
+
+/** Filters out information from a post before returning it to the client. */
+function filterPost(post: Post & { options: PollOption[] }, now: Date) {
+  if (post.endsAt <= now) {
+    return;
+  }
+  for (const option of post.options) {
+    option.downvotesCount = 0;
+    option.totalCount = 0;
+    option.upvotesCount = 0;
+  }
+  return post;
 }

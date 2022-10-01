@@ -18,15 +18,7 @@ export function PostsList() {
   return (
     <div id="PostsList">
       {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          {...post}
-          commentsCount={post.commentsCount}
-          postId={post.id}
-          options={post.options}
-          totalCount={post.totalCount}
-          userMagnitude={(post.PostVote[0]?.magnitude ?? 0) as -1 | 0 | 1}
-        />
+        <PostCard key={post.id} post={post} />
       ))}
     </div>
   );

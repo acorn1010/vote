@@ -141,11 +141,15 @@ model Post {
 
   options PollOption[]
 
-  // Total of downvotesCount + upvotesCount. Ideally this would be a virtual field.
+  // Total of downvotesCount + upvotesCount. This count is for poll "popularity", not for number of
+  // PollOption votes. Ideally this would be a virtual field.
   // See: https://github.com/prisma/prisma/issues/3394
   totalCount     Int @default(0)
+  // Number of people who dislike this post.
   downvotesCount Int @default(0)
+  // Number of people who like this post.
   upvotesCount   Int @default(0)
+
   commentsCount  Int @default(0)
 
   topic   Topic  @relation(fields: [topicId], references: [id])
