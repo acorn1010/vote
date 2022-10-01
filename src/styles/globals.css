@@ -9,3 +9,8 @@ body {
 path {
   @apply fill-current !important;
 }
+
+:root {
+  --tw-colors-slate-800: theme('colors.slate.800');
+  --tw-colors-gray-600: theme('colors.gray.600');
+}

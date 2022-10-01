@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { MouseEventHandler, PropsWithChildren } from 'react';
+import { CSSProperties, MouseEventHandler, PropsWithChildren } from 'react';
 
 type ButtonProps = {
   className?: string;
@@ -7,9 +7,10 @@ type ButtonProps = {
   disabled?: boolean;
   fullWidth?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
+  style?: CSSProperties;
 };
 export function Button(props: PropsWithChildren<ButtonProps>) {
-  const { className, children, disabled, fullWidth, onClick } = props;
+  const { className, children, disabled, fullWidth, onClick, style } = props;
   return (
     <button
       className={clsx(
@@ -20,6 +21,7 @@ export function Button(props: PropsWithChildren<ButtonProps>) {
       disabled={disabled}
       type="button"
       onClick={onClick}
+      style={style}
     >
       {children}
     </button>
