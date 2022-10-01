@@ -16,15 +16,16 @@ export function PostsList() {
 
   const posts = [...(data ?? [])].sort((a, z) => z.totalCount - a.totalCount);
   return (
-    <div>
+    <div id="PostsList">
       {posts.map((post) => (
         <PostCard
           key={post.id}
           {...post}
-          userMagnitude={(post.PostVote[0]?.magnitude ?? 0) as -1 | 0 | 1}
           commentsCount={post.commentsCount}
           postId={post.id}
+          options={post.options}
           totalCount={post.totalCount}
+          userMagnitude={(post.PostVote[0]?.magnitude ?? 0) as -1 | 0 | 1}
         />
       ))}
     </div>

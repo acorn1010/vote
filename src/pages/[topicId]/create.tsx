@@ -81,6 +81,8 @@ export default function Create() {
 
         <PostOptions control={control} errors={errors} register={register} watch={watch} />
 
+        <p className="text-center text-neutral-400">All polls have a duration of 1 week.</p>
+
         <Input type="hidden" value="MULTIPLE_CHOICE" {...register('type')} />
         <Input type="hidden" value={topicId} {...register('topicId')} />
         <div>

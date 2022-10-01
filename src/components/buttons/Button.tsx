@@ -1,12 +1,12 @@
 import clsx from 'clsx';
-import { PropsWithChildren } from 'react';
+import { MouseEventHandler, PropsWithChildren } from 'react';
 
 type ButtonProps = {
   className?: string;
   /** True if this Button should be disabled (not clickable). Default false. */
   disabled?: boolean;
   fullWidth?: boolean;
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 };
 export function Button(props: PropsWithChildren<ButtonProps>) {
   const { className, children, disabled, fullWidth, onClick } = props;

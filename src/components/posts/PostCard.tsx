@@ -1,13 +1,18 @@
+import { PollOption, PollOptionVote } from '@prisma/client';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
 import { UpvoteDownvote } from '../buttons/UpvoteDownvote';
+import { PostPollOptions } from './PostPollOptions';
 
 dayjs.extend(relativeTime);
 type PostCardProps = {
   topicId: string;
   postId: string;
   title: string;
+
+  /** The options that can be voted on. */
+  options: (PollOption & { userVotes: PollOptionVote[] })[];
 
   /** Total of upvotes - downvotes. */
   totalCount: number;
@@ -19,7 +24,8 @@ type PostCardProps = {
   createdAt: Date;
 };
 export function PostCard(props: PostCardProps) {
-  const { postId, title, totalCount, commentsCount, topicId, userMagnitude, createdAt } = props;
+  const { postId, title, totalCount, commentsCount, topicId, userMagnitude, options, createdAt } =
+    props;
 
   return (
     <Link href={`/${topicId}/${postId}`}>
@@ -32,6 +38,8 @@ export function PostCard(props: PostCardProps) {
         />
         <div className="flex flex-col">
           <a className="flex-grow text-lg text-neutral-300 group-hover:text-white">{title}</a>
+          <div className="flex gap-2"></div>
+          <PostPollOptions options={options} variant="inline" />
           <div className="flex gap-2">
             <p className="text-xs text-neutral-500">submitted {dayjs(createdAt).from(dayjs())}</p>
             <p className="text-xs font-bold text-neutral-300">{commentsCount} Comments</p>
