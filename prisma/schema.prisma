@@ -114,9 +114,14 @@ model PollOption {
 
   // Total of downvotesCount + upvotesCount. Ideally this would be a virtual field.
   // See: https://github.com/prisma/prisma/issues/3394
+  // DEPRECATED: Not used for PollOption. Might be used later on when adding new poll options so we
+  //  can figure out the % vote on new additions.
   totalCount     Int @default(0)
   downvotesCount Int @default(0)
+
   upvotesCount   Int @default(0)
+
+  userVotes PollOptionVote[]
 }
 
 // TODO(acorn1010): Add option to fork a poll.
@@ -128,6 +133,7 @@ model Post {
   // If true, multiple poll options can be selected for each user.
   // isMultipleChoice Boolean
   createdAt   DateTime @default(now())
+  endsAt      DateTime @default(now())
   updatedAt   DateTime @default(now())
 
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -178,11 +184,14 @@ model Comment {
 }
 
 model PollOptionVote {
-  user      User   @relation(fields: [userId], references: [id])
-  post      Post   @relation(fields: [postId], references: [id])
-  userId    String
-  postId    String
-  magnitude Int    @db.SmallInt
+  user   User   @relation(fields: [userId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id])
+  userId String
+  postId String
+
+  // TODO(acorn1010): Make this non-optional.
+  pollOption   PollOption? @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  pollOptionId String?
 
   @@id([userId, postId])
 }

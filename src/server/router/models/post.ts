@@ -1,5 +1,6 @@
 import { Session } from 'next-auth';
 import { z } from 'zod';
+import { addDays } from '../../../utils/DateUtils';
 import { createPostInput } from '../../../validation/post';
 import { t } from '../../trpc';
 
@@ -18,7 +19,13 @@ export const postRouter = t.router({
             userId: userId ?? '',
           },
         },
-        options: true,
+        options: {
+          include: {
+            userVotes: {
+              where: { userId: userId ?? '' },
+            },
+          },
+        },
         user: true,
       },
     });
@@ -33,9 +40,16 @@ export const postRouter = t.router({
       /** Retrieves all posts for a given topic. */
       const topicId = input.topicId?.toLowerCase() ?? '';
 
-      return ctx.prisma.post.findMany({
+      const result = await ctx.prisma.post.findMany({
         ...(topicId ? { where: { topicId } } : {}),
         include: {
+          options: {
+            include: {
+              userVotes: {
+                where: { userId: userId ?? '' },
+              },
+            },
+          },
           PostVote: {
             where: {
               userId: userId ?? '',
@@ -47,6 +61,21 @@ export const postRouter = t.router({
         },
         take: 100,
       });
+
+      // Zero out vote counts for polls that haven't ended yet.
+      const now = new Date();
+      for (const post of result) {
+        if (post.endsAt > now) {
+          continue;
+        }
+        for (const option of post.options) {
+          option.downvotesCount = 0;
+          option.totalCount = 0;
+          option.upvotesCount = 0;
+        }
+      }
+
+      return result;
     }),
 
   /** Creates a new post (poll) with options. */
@@ -70,6 +99,8 @@ export const postRouter = t.router({
           type,
           topicId,
           userId,
+          endsAt: addDays(7), // End polls 7 days after they're created.
+
           options: {
             create: options,
           },
@@ -105,12 +136,11 @@ export const postRouter = t.router({
       try {
         await ctx.prisma.$transaction([
           ctx.prisma.pollOptionVote.create({
-            data: { userId, postId, magnitude: 1 },
+            data: { userId, postId, pollOptionId },
           }),
           ctx.prisma.pollOption.update({
             where: { id: pollOptionId },
             data: {
-              totalCount: { increment: 1 },
               upvotesCount: { increment: 1 },
             },
           }),
