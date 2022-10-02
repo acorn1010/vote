@@ -1,6 +1,6 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
 
-const withBundleAnalyzer = bundleAnalyzer({enabled: true});
+const withBundleAnalyzer = bundleAnalyzer({enabled: process.env.NODE_ENV === 'production'});
 /**
  * Don't be scared of the generics here.
  * All they do is to give us autocompletion when using this.
