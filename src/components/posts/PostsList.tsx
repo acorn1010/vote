@@ -14,9 +14,9 @@ export function PostsList() {
     return <Skeleton />;
   }
 
-  const posts = [...(data ?? [])].sort((a, z) => z.totalCount - a.totalCount);
+  const posts = [...(data ?? [])].sort((a, z) => z.createdAt.getTime() - a.createdAt.getTime());
   return (
-    <div id="PostsList">
+    <div className="PostsList">
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
