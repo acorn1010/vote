@@ -34,7 +34,6 @@ export default function Post() {
             Posted by {post.user ? post.user.name : 'Anonymous'}
           </p>
           <PostPoll post={post} variant="fullWidth" />
-          <p>For a different outcome, invite people who share that opinion to vote!</p>
         </div>
       </div>
     </Container>
