@@ -98,7 +98,9 @@ export function PostPollOptions(props: PostPollOptionsProps) {
               }}
             >
               {option.text}
-              {variant === 'fullWidth' && <span className="absolute right-2">({percent}%)</span>}
+              {variant === 'fullWidth' && hasEnded && (
+                <span className="absolute right-2">({percent}%)</span>
+              )}
             </Button>
           </Tooltip>
         );
