@@ -30,7 +30,9 @@ export default function Post() {
         />
         <div className="flex w-full flex-col">
           <h1>{post.title}</h1>
-          <p>Posted by {post.user ? post.user.name : 'Anonymous'}</p>
+          <p className="text-sm text-neutral-500">
+            Posted by {post.user ? post.user.name : 'Anonymous'}
+          </p>
           <PostPoll post={post} variant="fullWidth" />
           <p>For a different outcome, invite people who share that opinion to vote!</p>
         </div>
