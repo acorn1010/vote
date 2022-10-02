@@ -18,7 +18,6 @@ type PostPollOptionsProps = {
 export function PostPollOptions(props: PostPollOptionsProps) {
   const { endsAt, options, variant } = props;
   const [isSending, setIsSending] = useState(false);
-  const voteOption = trpc.post.voteOption.useMutation();
   const [hasEnded, setHasEnded] = useState(new Date() >= endsAt);
   // Randomize the order of `options` to reduce vote bias. If poll has ended, sort by upvotes.
   const randomizedOptions = useMemo(() => {
@@ -64,48 +63,77 @@ export function PostPollOptions(props: PostPollOptionsProps) {
       }
     >
       {randomizedOptions.map((option) => {
-        const percent = Math.round(Math.min(option.upvotesCount / totalVotes, 1) * 100);
         const isWinner = winningPoll === option.id;
         return (
-          <Tooltip
+          <PostPollOption
             key={option.id}
-            title={
-              hasEnded ? `${isWinner ? '🏆 ' : ''}${option.upvotesCount} votes (${percent}%)` : ''
-            }
-          >
-            <Button
-              className={clsx(
-                'overflow-hidden overflow-ellipsis whitespace-nowrap py-1 px-2',
-                variant === 'fullWidth' && 'pr-12',
-                option.userVotes[0]?.pollOptionId === option.id &&
-                  'bg-green-500 disabled:bg-green-500',
-                hasEnded && !isWinner && 'border-neutral-600',
-                isWinner && 'border-amber-400'
-              )}
-              style={hasEnded ? getOptionStyle(option.upvotesCount / totalVotes) : {}}
-              fullWidth={variant === 'fullWidth'}
-              disabled={isSending || hasVoted || hasEnded}
-              onClick={async (e) => {
-                e.preventDefault();
-                setIsSending(true);
-                try {
-                  await voteOption.mutateAsync({ postId: option.postId, pollOptionId: option.id });
-                } catch (e) {
-                  console.error(e);
-                } finally {
-                  setIsSending(false);
-                }
-              }}
-            >
-              {option.text}
-              {variant === 'fullWidth' && hasEnded && (
-                <span className="absolute right-2">({percent}%)</span>
-              )}
-            </Button>
-          </Tooltip>
+            option={option}
+            hasEnded={hasEnded}
+            isWinner={isWinner}
+            totalVotes={totalVotes}
+            variant={variant}
+            disabled={isSending || hasVoted || hasEnded}
+            setIsSending={setIsSending}
+          />
         );
       })}
     </div>
+  );
+}
+
+type PostPollOptionProps = {
+  option: ExtendedPollOption;
+  hasEnded: boolean;
+  isWinner: boolean;
+  totalVotes: number;
+  variant: PostPollOptionsProps['variant'];
+  disabled: boolean;
+  setIsSending: (isSending: boolean) => void;
+};
+function PostPollOption(props: PostPollOptionProps) {
+  const { option, hasEnded, isWinner, totalVotes, variant, disabled, setIsSending } = props;
+  const percent = Math.round(Math.min(option.upvotesCount / totalVotes, 1) * 100);
+  const voteOption = trpc.post.voteOption.useMutation();
+  const [hasVoted, setHasVoted] = useState(false); // True if user has voted on this option.
+
+  const hasVotedOnOption = hasVoted || option.userVotes[0]?.pollOptionId === option.id;
+  return (
+    <Tooltip
+      key={option.id}
+      title={hasEnded ? `${isWinner ? '🏆 ' : ''}${option.upvotesCount} votes (${percent}%)` : ''}
+    >
+      <Button
+        className={clsx(
+          'overflow-hidden overflow-ellipsis whitespace-nowrap py-1 px-2',
+          variant === 'fullWidth' && 'pr-12',
+          hasVotedOnOption && 'bg-green-500 disabled:bg-green-500',
+          hasEnded && !isWinner && 'border-neutral-600',
+          isWinner && 'border-amber-400'
+        )}
+        style={hasEnded ? getOptionStyle(option.upvotesCount / totalVotes) : {}}
+        fullWidth={variant === 'fullWidth'}
+        disabled={disabled}
+        onClick={async (e) => {
+          e.preventDefault();
+          setIsSending(true);
+          setHasVoted(true);
+          try {
+            await voteOption.mutateAsync({ postId: option.postId, pollOptionId: option.id });
+          } catch (e) {
+            console.error(e);
+            setHasVoted(false);
+            // Failed to send. Undo. Only undo in catch-clause because we want the other options to
+            // remain disabled after voting.
+            setIsSending(false);
+          }
+        }}
+      >
+        {option.text}
+        {variant === 'fullWidth' && hasEnded && (
+          <span className="absolute right-2">({percent}%)</span>
+        )}
+      </Button>
+    </Tooltip>
   );
 }
 
