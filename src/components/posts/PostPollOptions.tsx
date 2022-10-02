@@ -4,6 +4,7 @@ import { shuffle, sumBy } from 'lodash';
 import { CSSProperties, useEffect, useMemo, useState } from 'react';
 import { trpc } from '../../utils/trpc';
 import { Button } from '../buttons/Button';
+import { Tooltip } from '../tooltip/Tooltip';
 
 type ExtendedPollOption = PollOption & { userVotes: PollOptionVote[] };
 
@@ -62,39 +63,46 @@ export function PostPollOptions(props: PostPollOptionsProps) {
           : {}
       }
     >
-      {randomizedOptions.map((option) => (
-        <Button
-          key={option.id}
-          className={clsx(
-            'overflow-hidden overflow-ellipsis whitespace-nowrap py-1 px-2',
-            variant === 'fullWidth' && 'pr-12',
-            option.userVotes[0]?.pollOptionId === option.id && 'bg-green-500 disabled:bg-green-500',
-            hasEnded && winningPoll !== option.id && 'border-neutral-600',
-            winningPoll === option.id && 'border-amber-400'
-          )}
-          style={hasEnded ? getOptionStyle(option.upvotesCount / totalVotes) : {}}
-          fullWidth={variant === 'fullWidth'}
-          disabled={isSending || hasVoted || hasEnded}
-          onClick={async (e) => {
-            e.preventDefault();
-            setIsSending(true);
-            try {
-              await voteOption.mutateAsync({ postId: option.postId, pollOptionId: option.id });
-            } catch (e) {
-              console.error(e);
-            } finally {
-              setIsSending(false);
+      {randomizedOptions.map((option) => {
+        const percent = Math.round(Math.min(option.upvotesCount / totalVotes, 1) * 100);
+        const isWinner = winningPoll === option.id;
+        return (
+          <Tooltip
+            key={option.id}
+            title={
+              hasEnded ? `${isWinner ? '🏆 ' : ''}${option.upvotesCount} votes (${percent}%)` : ''
             }
-          }}
-        >
-          {option.text}
-          {variant === 'fullWidth' && (
-            <span className="absolute right-2">
-              ({Math.round(Math.min(option.upvotesCount / totalVotes, 1) * 100)}%)
-            </span>
-          )}
-        </Button>
-      ))}
+          >
+            <Button
+              className={clsx(
+                'overflow-hidden overflow-ellipsis whitespace-nowrap py-1 px-2',
+                variant === 'fullWidth' && 'pr-12',
+                option.userVotes[0]?.pollOptionId === option.id &&
+                  'bg-green-500 disabled:bg-green-500',
+                hasEnded && !isWinner && 'border-neutral-600',
+                isWinner && 'border-amber-400'
+              )}
+              style={hasEnded ? getOptionStyle(option.upvotesCount / totalVotes) : {}}
+              fullWidth={variant === 'fullWidth'}
+              disabled={isSending || hasVoted || hasEnded}
+              onClick={async (e) => {
+                e.preventDefault();
+                setIsSending(true);
+                try {
+                  await voteOption.mutateAsync({ postId: option.postId, pollOptionId: option.id });
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  setIsSending(false);
+                }
+              }}
+            >
+              {option.text}
+              {variant === 'fullWidth' && <span className="absolute right-2">({percent}%)</span>}
+            </Button>
+          </Tooltip>
+        );
+      })}
     </div>
   );
 }
