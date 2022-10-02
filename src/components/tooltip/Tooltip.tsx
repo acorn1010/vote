@@ -25,7 +25,7 @@ export function Tooltip(props: PropsWithChildren<{ title: string }>) {
         ref={setPopperRef}
         style={styles.popper}
         {...attributes.popper}
-        className={`pointer-events-none m-1 w-max max-w-xs rounded-md bg-black p-2 transition-opacity ${
+        className={`pointer-events-none z-50 m-1 w-max max-w-xs rounded-md bg-black p-2 transition-opacity ${
           open ? 'opacity-100' : 'opacity-0'
         }`}
       >
