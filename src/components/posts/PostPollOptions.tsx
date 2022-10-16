@@ -92,17 +92,17 @@ type PostPollOptionProps = {
 };
 function PostPollOption(props: PostPollOptionProps) {
   const { option, hasEnded, isWinner, totalVotes, variant, disabled, setIsSending } = props;
-  const percent = totalVotes
-    ? Math.round(Math.min(option.upvotesCount / totalVotes, 1) * 100)
-    : 100;
+  const percent = totalVotes ? Math.round(Math.min(option.upvotesCount / totalVotes, 1) * 100) : 0;
   const voteOption = trpc.post.voteOption.useMutation();
   const [hasVoted, setHasVoted] = useState(false); // True if user has voted on this option.
 
   const hasVotedOnOption = hasVoted || option.userVotes[0]?.pollOptionId === option.id;
+
+  const percentText = percent ? ` (${percent}%)` : '';
   return (
     <Tooltip
       key={option.id}
-      title={hasEnded ? `${isWinner ? '🏆 ' : ''}${option.upvotesCount} votes (${percent}%)` : ''}
+      title={hasEnded ? `${isWinner ? '🏆 ' : ''}${option.upvotesCount} votes${percentText}` : ''}
     >
       <Button
         className={clsx(
