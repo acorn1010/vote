@@ -29,10 +29,11 @@ export default function Post() {
           userMagnitude={(post.PostVote[0]?.magnitude ?? 0) as -1 | 0 | 1}
         />
         <div className="flex w-full flex-col">
-          <h1>{post.title}</h1>
-          <p className="text-sm text-neutral-500">
+          <h1 className="text-lg font-semibold">{post.title}</h1>
+          <p className="-mt-1 text-sm text-neutral-500">
             Posted by {post.user ? post.user.name : 'Anonymous'}
           </p>
+          {post.description && <p className="text-neutral-400">{post.description}</p>}
           <PostPoll post={post} variant="fullWidth" />
         </div>
       </div>
