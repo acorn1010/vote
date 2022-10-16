@@ -12,7 +12,7 @@ export const createPostInput = z.object({
     .string()
     .min(1)
     .max(255)
-    .regex(/[a-zA-Z0-9_-]/),
+    .regex(/^((?!_$)[\w-]+)$/), // Match [\w-]+, but not "_".
   /** A title of the poll (e.g. "What's your favorite flavor?") */
   title: z.string().min(1).max(255),
 
