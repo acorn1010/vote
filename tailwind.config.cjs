@@ -10,7 +10,11 @@ module.exports = {
       secondary: colors.yellow,
       neutral: colors.slate,
     },
-    extend: {},
+    extend: {
+      aspectRatio: {
+        '2/1': '2 / 1',
+      },
+    },
   },
   plugins: [
     require('@tailwindcss/forms'),
