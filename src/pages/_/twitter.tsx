@@ -10,7 +10,10 @@ import NextImage, { ImageProps } from 'next/image';
 export default function TwitterClipper() {
   return (
     <Container className="flex flex-col gap-2">
-      <h1 className="mb-4 text-center text-2xl font-semibold">Twitter Auto-Image Resizer</h1>
+      <h1 className="text-center text-2xl font-semibold">Twitter Image Center-er</h1>
+      <p className="text-center text-neutral-400">
+        Upload an image. It'll be resized to a 2:1 aspect ratio to look great in Twitter posts.
+      </p>
       <ResizeArea />
     </Container>
   );
