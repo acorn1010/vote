@@ -2,6 +2,7 @@ import { PollOption, PollOptionVote, Post, PostVote } from '@prisma/client';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { sumBy } from 'lodash';
+import { Tooltip } from '../tooltip/Tooltip';
 import { PostPollOptions } from './PostPollOptions';
 
 dayjs.extend(relativeTime);
@@ -11,7 +12,7 @@ type PostPollProps = {
 };
 export function PostPoll(props: PostPollProps) {
   const { post, variant } = props;
-  const { options, endsAt, commentsCount, createdAt } = post;
+  const { description, options, endsAt, commentsCount, createdAt } = post;
 
   const totalVotes = sumBy(options, (option) => option.upvotesCount);
   return (
@@ -25,6 +26,11 @@ export function PostPoll(props: PostPollProps) {
           <span className="font-bold">{commentsCount}</span> Comments
         </p>
         <p className="text-xs text-neutral-500">submitted {dayjs(createdAt).from(dayjs())}</p>
+        {variant === 'inline' && description && (
+          <Tooltip title={description}>
+            <p className="text-xs font-bold text-neutral-300">Description</p>
+          </Tooltip>
+        )}
       </div>
     </>
   );
