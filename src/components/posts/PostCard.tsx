@@ -4,7 +4,11 @@ import { UpvoteDownvote } from '../buttons/UpvoteDownvote';
 import { PostPoll } from './PostPoll';
 
 type PostCardProps = {
-  post: Post & { PostVote: PostVote[]; options: (PollOption & { userVotes: PollOptionVote[] })[] };
+  post: Post & {
+    PostVote: PostVote[];
+    options: (PollOption & { userVotes: PollOptionVote[] })[];
+    totalOptionsCount: number;
+  };
 };
 export function PostCard(props: PostCardProps) {
   const { id, title, totalCount, topicId, PostVote } = props.post;

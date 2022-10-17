@@ -1,4 +1,5 @@
-import { PollOption, Post } from '@prisma/client';
+import { PollOption, PollOptionVote, Post, PostVote } from '@prisma/client';
+import { sumBy } from 'lodash';
 import { Session } from 'next-auth';
 import { z } from 'zod';
 import { addDays } from '../../../utils/DateUtils';
@@ -31,10 +32,7 @@ export const postRouter = t.router({
       },
     });
 
-    if (result) {
-      filterPost(result, new Date());
-    }
-    return result;
+    return result && filterPost(result, new Date());
   }),
 
   /** Returns the top 100 posts for this topic. */
@@ -46,7 +44,7 @@ export const postRouter = t.router({
       /** Retrieves all posts for a given topic. */
       const topicId = input.topicId?.toLowerCase() ?? '';
 
-      const result = await ctx.prisma.post.findMany({
+      const posts = await ctx.prisma.post.findMany({
         ...(topicId ? { where: { topicId } } : {}),
         include: {
           options: {
@@ -70,10 +68,10 @@ export const postRouter = t.router({
 
       // Zero out vote counts for polls that haven't ended yet.
       const now = new Date();
-      for (const post of result) {
-        filterPost(post, now);
+      const result = [];
+      for (const post of posts) {
+        result.push(filterPost(post, now));
       }
-
       return result;
     }),
 
@@ -234,14 +232,23 @@ function assertUserId(ctx: { session: Session | null }) {
 }
 
 /** Filters out information from a post before returning it to the client. */
-function filterPost(post: Post & { options: PollOption[] }, now: Date) {
+type PostWithOptions = Post & {
+  options: (PollOption & { userVotes: PollOptionVote[] })[];
+  PostVote: PostVote[];
+};
+function filterPost(
+  post: PostWithOptions,
+  now: Date
+): PostWithOptions & { totalOptionsCount: number } {
   if (post.endsAt <= now) {
-    return;
+    return { ...post, totalOptionsCount: sumBy(post.options, (option) => option.upvotesCount) };
   }
+  let totalCount = 0;
   for (const option of post.options) {
     option.downvotesCount = 0;
+    totalCount += option.upvotesCount;
     option.totalCount = 0;
     option.upvotesCount = 0;
   }
-  return post;
+  return { ...post, totalOptionsCount: totalCount };
 }
