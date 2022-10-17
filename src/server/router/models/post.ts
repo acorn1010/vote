@@ -236,10 +236,10 @@ type PostWithOptions = Post & {
   options: (PollOption & { userVotes: PollOptionVote[] })[];
   PostVote: PostVote[];
 };
-function filterPost(
-  post: PostWithOptions,
+function filterPost<T extends PostWithOptions>(
+  post: T,
   now: Date
-): PostWithOptions & { totalOptionsCount: number } {
+): T & { totalOptionsCount: number } {
   if (post.endsAt <= now) {
     return { ...post, totalOptionsCount: sumBy(post.options, (option) => option.upvotesCount) };
   }
