@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import { usePopper } from 'react-popper';
 
 export function Tooltip(props: PropsWithChildren<{ title: string }>) {
@@ -18,6 +18,20 @@ export function Tooltip(props: PropsWithChildren<{ title: string }>) {
     ],
   });
 
+  // Fix for onMouseLeave in React in Chrome.
+  // See: https://github.com/facebook/react/issues/11972
+  useEffect(() => {
+    if (!ref) {
+      return;
+    }
+
+    const handleLeave = () => setOpen(false);
+    ref.addEventListener('mouseleave', handleLeave);
+    return () => {
+      ref.removeEventListener('mouseleave', handleLeave);
+    };
+  }, [ref]);
+
   if (!title) {
     return <>{children}</>;
   }
@@ -27,6 +41,7 @@ export function Tooltip(props: PropsWithChildren<{ title: string }>) {
       className="Tooltip relative"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
+      onMouseOut={() => setOpen(false)}
       ref={setRef}
     >
       {children}
