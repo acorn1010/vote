@@ -112,7 +112,7 @@ function PostPollOption(props: PostPollOptionProps) {
           !isWinner && 'border-neutral-600',
           isWinner && 'border-amber-400'
         )}
-        style={getOptionStyle(option.upvotesCount / totalVotes)}
+        style={getOptionStyle(option.upvotesCount / totalVotes, disabled)}
         fullWidth={variant === 'fullWidth'}
         disabled={disabled}
         onClick={async (e) => {
@@ -143,7 +143,11 @@ function PostPollOption(props: PostPollOptionProps) {
  * Returns the special style for this `option`. This includes a background image that displays the
  * % that voted on this option.
  */
-function getOptionStyle(percentValue: number): CSSProperties {
+function getOptionStyle(percentValue: number, disabled: boolean): CSSProperties {
+  if (!disabled) {
+    return {};
+  }
+
   const foreground = 'var(--tw-colors-gray-600)';
   const background = 'var(--tw-colors-slate-800)';
   const percent = Math.min(100 * percentValue, 100);
