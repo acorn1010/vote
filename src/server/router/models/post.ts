@@ -32,7 +32,7 @@ export const postRouter = t.router({
       },
     });
 
-    return result && filterPost(result, new Date());
+    return result && filterPost(result);
   }),
 
   /** Returns the top 100 posts for this topic. */
@@ -66,11 +66,9 @@ export const postRouter = t.router({
         take: 100,
       });
 
-      // Zero out vote counts for polls that haven't ended yet.
-      const now = new Date();
       const result = [];
       for (const post of posts) {
-        result.push(filterPost(post, now));
+        result.push(filterPost(post));
       }
       return result;
     }),
@@ -236,19 +234,6 @@ type PostWithOptions = Post & {
   options: (PollOption & { userVotes: PollOptionVote[] })[];
   PostVote: PostVote[];
 };
-function filterPost<T extends PostWithOptions>(
-  post: T,
-  now: Date
-): T & { totalOptionsCount: number } {
-  if (post.endsAt <= now) {
-    return { ...post, totalOptionsCount: sumBy(post.options, (option) => option.upvotesCount) };
-  }
-  let totalCount = 0;
-  for (const option of post.options) {
-    option.downvotesCount = 0;
-    totalCount += option.upvotesCount;
-    option.totalCount = 0;
-    option.upvotesCount = 0;
-  }
-  return { ...post, totalOptionsCount: totalCount };
+function filterPost<T extends PostWithOptions>(post: T): T & { totalOptionsCount: number } {
+  return { ...post, totalOptionsCount: sumBy(post.options, (option) => option.upvotesCount) };
 }

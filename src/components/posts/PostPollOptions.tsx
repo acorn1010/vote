@@ -46,7 +46,7 @@ export function PostPollOptions(props: PostPollOptionsProps) {
     };
   }, [endsAt, setHasEnded]);
 
-  const winningPoll = hasEnded ? getWinningPoll(randomizedOptions) : null;
+  const winningPoll = getWinningPoll(randomizedOptions);
   const totalVotes = sumBy(options, (option) => option.upvotesCount);
 
   return (
@@ -102,17 +102,17 @@ function PostPollOption(props: PostPollOptionProps) {
   return (
     <Tooltip
       key={option.id}
-      title={hasEnded ? `${isWinner ? '🏆 ' : ''}${option.upvotesCount} votes${percentText}` : ''}
+      title={`${isWinner ? '🏆 ' : ''}${option.upvotesCount} votes${percentText}`}
     >
       <Button
         className={clsx(
           'overflow-hidden overflow-ellipsis whitespace-nowrap py-1 px-2',
           variant === 'fullWidth' && 'pr-12',
           hasVotedOnOption && 'bg-green-500 disabled:bg-green-500',
-          hasEnded && !isWinner && 'border-neutral-600',
+          !isWinner && 'border-neutral-600',
           isWinner && 'border-amber-400'
         )}
-        style={hasEnded ? getOptionStyle(option.upvotesCount / totalVotes) : {}}
+        style={getOptionStyle(option.upvotesCount / totalVotes)}
         fullWidth={variant === 'fullWidth'}
         disabled={disabled}
         onClick={async (e) => {
@@ -131,7 +131,7 @@ function PostPollOption(props: PostPollOptionProps) {
         }}
       >
         {option.text}
-        {variant === 'fullWidth' && hasEnded && (
+        {variant === 'fullWidth' && (
           <span className="absolute right-2">({percent}%)</span>
         )}
       </Button>
