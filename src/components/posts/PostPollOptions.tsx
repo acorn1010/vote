@@ -68,7 +68,6 @@ export function PostPollOptions(props: PostPollOptionsProps) {
           <PostPollOption
             key={option.id}
             option={option}
-            hasEnded={hasEnded}
             isWinner={isWinner}
             totalVotes={totalVotes}
             variant={variant}
@@ -83,7 +82,6 @@ export function PostPollOptions(props: PostPollOptionsProps) {
 
 type PostPollOptionProps = {
   option: ExtendedPollOption;
-  hasEnded: boolean;
   isWinner: boolean;
   totalVotes: number;
   variant: PostPollOptionsProps['variant'];
@@ -91,7 +89,7 @@ type PostPollOptionProps = {
   setIsSending: (isSending: boolean) => void;
 };
 function PostPollOption(props: PostPollOptionProps) {
-  const { option, hasEnded, isWinner, totalVotes, variant, disabled, setIsSending } = props;
+  const { option, isWinner, totalVotes, variant, disabled, setIsSending } = props;
   const percent = totalVotes ? Math.round(Math.min(option.upvotesCount / totalVotes, 1) * 100) : 0;
   const voteOption = trpc.post.voteOption.useMutation();
   const [hasVoted, setHasVoted] = useState(false); // True if user has voted on this option.
